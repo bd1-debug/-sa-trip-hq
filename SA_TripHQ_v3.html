@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1c1007">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SA Trip HQ">
+<title>SA Trip HQ v3 -- Oizom Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   WARM PALETTE - RICH COFFEE / AMBER / PARCHMENT
+   SA Trip HQ v3 -- Oizom Intelligence Command Centre
+================================================================ */
+:root{
+  --bg:#1c1007;--bg2:#251609;
+  --surface:#2e1d0d;--surface2:#3a2411;--surface3:#4a2f17;
+  --border:rgba(200,150,80,0.18);--border2:rgba(200,150,80,0.32);
+  --amber:#d97706;--amber2:#f59e0b;--amber3:#fbbf24;
+  --amber-glow:0 0 28px rgba(217,119,6,0.4);
+  --rust:#c2410c;--rust2:#ea580c;
+  --cream:#fef3c7;--parchment:#fde68a;--warm-white:#fffbf5;
+  --sage:#65a30d;--teal:#0d9488;
+  --text:#f5e6d0;--text2:#d4b896;--muted:#9c7d5a;--muted2:#7a5f42;
+  --font-head:'Playfair Display',serif;
+  --font-body:'Mulish',sans-serif;
+  --font-mono:'Fira Code',monospace;
+  --radius:14px;--radius-sm:8px;--radius-xs:5px;
+  --trans:all .22s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:13px;min-height:100vh;overflow-x:hidden;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 5%,rgba(217,119,6,0.10) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 85%,rgba(194,65,12,0.08) 0%,transparent 55%),radial-gradient(ellipse 40% 30% at 55% 45%,rgba(245,158,11,0.04) 0%,transparent 50%);pointer-events:none;z-index:0;}
+
+/* OFFLINE BANNER */
+#offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--rust);color:white;text-align:center;padding:6px;font-size:11px;font-weight:600;}
+body.offline #offline-banner{display:block;}
+body.offline .topbar{top:28px;}
+
+/* INSTALL BANNER */
+#install-banner{display:none;align-items:center;justify-content:space-between;padding:10px 32px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);}
+#install-banner.show{display:flex;}
+
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(28,16,7,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-flag{font-size:26px;filter:drop-shadow(0 2px 8px rgba(217,119,6,0.5));}
+.logo-text h1{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--warm-white);letter-spacing:-.3px;}
+.logo-text h1 span{color:var(--amber2);}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono);}
+.topbar-center{display:flex;gap:3px;flex-wrap:wrap;}
+.nav-btn{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-body);font-size:10px;font-weight:600;transition:var(--trans);letter-spacing:.3px;}
+.nav-btn:hover{color:var(--text);border-color:var(--border2);}
+.nav-btn.active{background:linear-gradient(135deg,var(--amber),var(--rust2));border-color:var(--amber);color:var(--warm-white);box-shadow:var(--amber-glow);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.online-dot{width:8px;height:8px;border-radius:50%;background:var(--sage);box-shadow:0 0 6px var(--sage);animation:blink 2s infinite;}
+.online-dot.offline-dot{background:var(--rust);box-shadow:0 0 6px var(--rust);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+#live-time{font-family:var(--font-mono);font-size:11px;color:var(--muted);}
+.bell-btn{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:var(--trans);font-size:15px;}
+.bell-btn:hover{border-color:var(--amber);box-shadow:var(--amber-glow);}
+.bell-badge{position:absolute;top:-3px;right:-3px;width:16px;height:16px;background:var(--rust);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+/* TABS */
+.tabs{display:flex;gap:0;padding:0 32px;background:rgba(28,16,7,0.7);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tabs::-webkit-scrollbar{height:2px;}
+.tabs::-webkit-scrollbar-thumb{background:var(--border2);}
+.tab{padding:12px 18px;cursor:pointer;font-family:var(--font-body);font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid transparent;transition:var(--trans);display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.tab:hover{color:var(--text2);}
+.tab.active{color:var(--amber2);border-bottom-color:var(--amber2);}
+
+/* PANELS */
+.panel{display:none;padding:24px 32px;animation:fadeUp .3s ease;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* KPI STRIP */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;transition:var(--trans);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.k-amber::before{background:linear-gradient(90deg,var(--amber),var(--amber3));}
+.kpi-card.k-rust::before{background:linear-gradient(90deg,var(--rust),var(--rust2));}
+.kpi-card.k-sage::before{background:var(--sage);}
+.kpi-card.k-teal::before{background:var(--teal);}
+.kpi-card.k-warm::before{background:linear-gradient(90deg,#92400e,var(--amber));}
+.kpi-card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+.kpi-icon{position:absolute;top:12px;right:12px;font-size:18px;opacity:.4;}
+.kpi-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px;}
+.kpi-val{font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--warm-white);line-height:1;}
+.kpi-sub{font-size:9px;color:var(--muted);margin-top:4px;}
+
+/* GRID LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+
+/* CARD */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:0;}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.card-title{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--warm-white);display:flex;align-items:center;gap:8px;}
+.card-body{padding:16px;}
+
+/* SECTION LABEL */
+.sec-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* TIMELINE */
+.tl-day{display:flex;margin-bottom:3px;border-radius:var(--radius-sm);overflow:hidden;transition:var(--trans);cursor:pointer;}
+.tl-day:hover{transform:translateX(3px);}
+.tl-date{width:76px;flex-shrink:0;background:var(--surface3);padding:9px 7px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid var(--border);}
+.tl-num{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--warm-white);line-height:1;}
+.tl-month{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.tl-weekday{font-size:8px;color:var(--amber2);margin-top:2px;}
+.tl-content{flex:1;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--surface);}
+.tl-content.tight{background:rgba(194,65,12,0.12);}
+.tl-type{font-size:12px;color:var(--text);font-weight:600;}
+.tl-note{font-size:10px;color:var(--muted);margin-top:1px;}
+.tl-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.city-pill{padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.4px;}
+.c-jhb{background:rgba(217,119,6,0.2);color:#fcd34d;border:1px solid rgba(217,119,6,0.35);}
+.c-dur{background:rgba(194,65,12,0.2);color:#fdba74;border:1px solid rgba(194,65,12,0.35);}
+.c-cpt{background:rgba(13,148,136,0.2);color:#5eead4;border:1px solid rgba(13,148,136,0.35);}
+.c-travel{background:rgba(101,163,13,0.2);color:#bef264;border:1px solid rgba(101,163,13,0.35);}
+.tight-badge{font-size:8px;padding:2px 7px;border-radius:10px;background:rgba(194,65,12,0.2);color:var(--rust2);border:1px solid rgba(194,65,12,0.3);}
+.tl-edit-btn{opacity:0;font-size:10px;cursor:pointer;color:var(--amber2);background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:2px 5px;transition:var(--trans);}
+.tl-day:hover .tl-edit-btn{opacity:1;}
+
+/* FORMS */
+.field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px;}
+.field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 11px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:12px;transition:var(--trans);outline:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(217,119,6,0.12);}
+.field select option{background:var(--bg2);}
+.field textarea{resize:vertical;min-height:60px;}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+
+/* BUTTONS */
+.btn{padding:8px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:700;transition:var(--trans);letter-spacing:.3px;}
+.btn-amber{background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--bg);}
+.btn-amber:hover{transform:translateY(-1px);box-shadow:var(--amber-glow);}
+.btn-rust{background:var(--rust2);color:white;}
+.btn-rust:hover{background:var(--rust);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--amber);color:var(--text);}
+.btn-sm{padding:4px 11px;font-size:10px;}
+.btn-sage{background:var(--sage);color:white;}
+
+/* FLIGHTS */
+.flight-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;align-items:center;gap:14px;transition:var(--trans);position:relative;overflow:hidden;margin-bottom:10px;}
+.flight-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);}
+.flight-card.rec::before{background:linear-gradient(var(--amber),var(--rust2));}
+.flight-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.flight-card.rec{border-color:rgba(217,119,6,0.35);}
+.airline-blob{width:44px;height:44px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.fl-times{flex:1;display:flex;align-items:center;gap:12px;}
+.fl-t{text-align:center;}
+.fl-t-main{font-family:var(--font-head);font-size:19px;font-weight:700;color:var(--warm-white);}
+.fl-t-code{font-size:9px;color:var(--muted);}
+.fl-line{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.fl-dur{font-size:9px;color:var(--amber2);font-family:var(--font-mono);}
+.fl-hr{width:100%;height:1px;background:var(--border);}
+.fl-stops{font-size:9px;color:var(--muted);}
+.fl-price{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber2);}
+.fl-meta{text-align:right;}
+.eff-pill{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-top:3px;}
+.eff-h{background:rgba(101,163,13,0.18);color:#86efac;border:1px solid rgba(101,163,13,0.3);}
+.eff-m{background:rgba(217,119,6,0.18);color:var(--amber3);border:1px solid rgba(217,119,6,0.3);}
+.eff-l{background:rgba(194,65,12,0.18);color:#fca5a5;border:1px solid rgba(194,65,12,0.3);}
+.rec-badge{position:absolute;top:9px;right:9px;background:linear-gradient(135deg,var(--amber),var(--rust2));color:var(--bg);font-size:8px;font-weight:800;padding:2px 8px;border-radius:20px;letter-spacing:.5px;}
+.book-btn{display:block;width:100%;margin-top:6px;padding:6px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);color:var(--text2);cursor:pointer;font-size:10px;font-weight:700;font-family:var(--font-body);transition:var(--trans);text-align:center;}
+.book-btn:hover{background:var(--amber);color:var(--bg);border-color:var(--amber);}
+
+/* MEETING TABLE */
+.mtable{width:100%;border-collapse:separate;border-spacing:0 3px;}
+.mtable th{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:6px 9px;text-align:left;}
+.mtable td{padding:8px 9px;background:var(--surface);font-size:11px;color:var(--text);}
+.mtable td:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm);}
+.mtable td:last-child{border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+.deal-badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;}
+.d-hot{background:rgba(194,65,12,0.2);color:#fca5a5;border:1px solid rgba(194,65,12,0.3);}
+.d-warm{background:rgba(217,119,6,0.2);color:var(--amber3);border:1px solid rgba(217,119,6,0.3);}
+.d-cold{background:rgba(13,148,136,0.2);color:#5eead4;border:1px solid rgba(13,148,136,0.3);}
+.d-pending{background:rgba(156,125,90,0.2);color:var(--text2);border:1px solid rgba(156,125,90,0.3);}
+.row-edit-btn,.row-del-btn{background:none;border:none;cursor:pointer;font-size:13px;opacity:.5;transition:var(--trans);padding:2px;}
+.row-edit-btn:hover{opacity:1;color:var(--amber2);}
+.row-del-btn:hover{opacity:1;color:var(--rust2);}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-head{font-size:8px;color:var(--muted);text-align:center;padding:4px;text-transform:uppercase;letter-spacing:.5px;}
+.cal-day{aspect-ratio:1;border-radius:var(--radius-xs);background:var(--surface);border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:var(--trans);gap:1px;}
+.cal-day:hover{border-color:var(--amber);background:var(--surface2);}
+.cal-day.empty{background:transparent;cursor:default;}
+.cal-day.has-meeting{border-color:rgba(217,119,6,0.4);}
+.cal-day.travel-day{background:rgba(101,163,13,0.1);border-color:rgba(101,163,13,0.25);}
+.cal-num{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--warm-white);}
+.cal-dot{width:4px;height:4px;border-radius:50%;}
+.cal-lbl{font-size:7px;letter-spacing:.2px;}
+
+/* NOTIFICATIONS */
+.notif-item{display:flex;gap:9px;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);align-items:flex-start;transition:var(--trans);margin-bottom:5px;}
+.notif-item:hover{border-color:var(--border2);}
+.notif-item.urgent{border-color:rgba(194,65,12,0.4);}
+.notif-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.notif-body{flex:1;}
+.notif-title{font-size:11px;color:var(--warm-white);font-weight:600;margin-bottom:2px;}
+.notif-sub{font-size:10px;color:var(--muted);}
+.notif-time{font-size:9px;color:var(--amber2);white-space:nowrap;font-family:var(--font-mono);}
+
+/* TOGGLES */
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:5px;}
+.tog-label{font-size:11px;color:var(--text);}
+.toggle{width:32px;height:17px;border-radius:9px;background:var(--surface3);position:relative;cursor:pointer;transition:var(--trans);flex-shrink:0;}
+.toggle.on{background:var(--amber);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--muted2);transition:var(--trans);}
+.toggle.on::after{left:17px;background:var(--bg);}
+
+/* CHARTS */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:110px;padding-top:8px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;position:relative;overflow:hidden;min-height:4px;transition:height .7s cubic-bezier(.34,1.56,.64,1);}
+.bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,transparent 100%);}
+.bv{font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--warm-white);}
+.bl{font-size:8px;color:var(--muted);text-align:center;letter-spacing:.3px;}
+
+.h-bars{display:flex;flex-direction:column;gap:9px;}
+.h-row{display:flex;flex-direction:column;gap:3px;}
+.h-row-top{display:flex;justify-content:space-between;}
+.h-lbl{font-size:11px;color:var(--text);}
+.h-val{font-size:11px;color:var(--amber2);font-weight:600;}
+.h-track{height:7px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.h-fill{height:100%;border-radius:4px;transition:width 1.1s cubic-bezier(.34,1.56,.64,1);}
+
+/* GAUGE */
+.gauge-stack{display:flex;flex-direction:column;gap:6px;}
+.gauge-item{display:flex;align-items:center;gap:9px;}
+.gauge-lbl{width:42px;font-size:9px;color:var(--muted);text-align:right;}
+.gauge-bar{flex:1;height:20px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.gauge-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 7px;font-size:9px;font-weight:700;color:white;font-family:var(--font-mono);transition:width 1s;}
+.g-hot{background:linear-gradient(90deg,var(--rust),var(--rust2));}
+.g-warm{background:linear-gradient(90deg,#92400e,var(--amber));}
+.g-cold{background:linear-gradient(90deg,var(--teal),#2dd4bf);color:var(--bg);}
+
+/* INSIGHT CARDS */
+.insight-card{display:flex;gap:11px;padding:11px;border-radius:var(--radius-sm);border-left:3px solid var(--amber);background:var(--surface);margin-bottom:7px;transition:var(--trans);}
+.insight-card.warn{border-color:var(--amber);}
+.insight-card.danger{border-color:var(--rust2);}
+.insight-card.good{border-color:var(--sage);}
+.insight-card.info{border-color:var(--teal);}
+.insight-card .ic-icon{font-size:17px;flex-shrink:0;}
+.insight-card h4{font-size:11px;color:var(--warm-white);margin-bottom:3px;font-weight:700;}
+.insight-card p{font-size:10px;color:var(--muted);line-height:1.5;}
+
+/* CONNECTORS */
+.connector-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:var(--trans);}
+.connector-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.conn-head{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.conn-logo{width:40px;height:40px;border-radius:9px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.conn-name{font-size:13px;color:var(--warm-white);font-weight:700;font-family:var(--font-head);}
+.conn-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.conn-status{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-bottom:9px;}
+.cs-disconnected{background:rgba(156,125,90,0.15);color:var(--muted);border:1px solid var(--border);}
+.cs-connected{background:rgba(101,163,13,0.15);color:#86efac;border:1px solid rgba(101,163,13,0.3);}
+.cs-dot{width:5px;height:5px;border-radius:50%;}
+.conn-features{margin-bottom:10px;}
+.conn-feat{font-size:10px;color:var(--text2);padding:2px 0;}
+.conn-feat::before{content:'-> ';color:var(--amber2);}
+.conn-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font-body);transition:var(--trans);}
+.conn-btn:hover{background:var(--amber);color:var(--bg);border-color:var(--amber);}
+.conn-btn.connected-btn{border-color:rgba(101,163,13,0.3);color:#86efac;}
+
+/* GOOGLE LOGIN BUTTON */
+.google-login-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--warm-white);cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font-body);transition:var(--trans);margin-bottom:8px;}
+.google-login-btn:hover{background:var(--surface3);border-color:var(--amber);}
+.google-login-btn img{width:18px;height:18px;}
+
+/* IMPORT ZONE */
+.import-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-top:10px;transition:var(--trans);cursor:pointer;}
+.import-zone:hover{border-color:var(--amber);background:rgba(217,119,6,0.04);}
+.import-zone h4{font-size:12px;color:var(--text2);margin-bottom:4px;}
+.import-zone p{font-size:10px;color:var(--muted);}
+
+/* NOTES */
+.notes-textarea{width:100%;min-height:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;resize:vertical;outline:none;transition:var(--trans);}
+.notes-textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(217,119,6,0.1);}
+.notes-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+.note-tag{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:700;cursor:pointer;background:var(--surface3);color:var(--muted);border:1px solid var(--border);transition:var(--trans);}
+.note-tag.active,.note-tag:hover{background:var(--amber);color:var(--bg);border-color:var(--amber);}
+
+/* STORAGE BAR */
+.storage-bar{display:flex;align-items:center;gap:9px;padding:7px 11px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:7px;}
+.storage-icon{font-size:13px;}
+.storage-text{font-size:10px;color:var(--muted);flex:1;}
+.storage-val{font-size:10px;color:var(--amber2);font-family:var(--font-mono);}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(14,8,3,0.78);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;width:94%;max-width:640px;max-height:92vh;overflow-y:auto;position:relative;animation:modalIn .25s ease;}
+.modal.modal-lg{max-width:820px;}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal h2{font-family:var(--font-head);font-size:17px;color:var(--warm-white);margin-bottom:18px;}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;transition:var(--trans);}
+.modal-close:hover{color:var(--rust2);}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:18px;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;}
+.leg-item{display:flex;align-items:center;gap:6px;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-lbl{font-size:11px;color:var(--text);}
+.leg-val{font-size:11px;color:var(--muted);margin-left:auto;}
+
+/* CHECKLIST */
+.chk-item{display:flex;gap:9px;padding:10px;background:var(--surface);border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--border);transition:var(--trans);margin-bottom:5px;}
+.chk-item:hover{border-color:var(--border2);}
+.chk-box{width:15px;height:15px;border-radius:4px;border:2px solid var(--muted2);flex-shrink:0;margin-top:1px;transition:var(--trans);display:flex;align-items:center;justify-content:center;font-size:10px;}
+.chk-item.done .chk-box{background:var(--sage);border-color:var(--sage);color:white;}
+.chk-item.done .chk-text{text-decoration:line-through;color:var(--muted);}
+.chk-text{font-size:11px;color:var(--text);line-height:1.4;}
+
+/* ============================
+   SMART NOTE TAKER / AI INTEL
+============================ */
+.intel-section{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.intel-section-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(217,119,6,0.06);}
+.intel-section-title{font-family:var(--font-head);font-size:13px;font-weight:600;color:var(--warm-white);}
+.intel-section-body{padding:16px;}
+
+/* AI analysis result blocks */
+.ai-result-block{background:var(--surface);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;border-left:3px solid var(--amber);}
+.ai-result-block.ai-hot{border-left-color:var(--rust2);}
+.ai-result-block.ai-good{border-left-color:var(--sage);}
+.ai-result-label{font-size:9px;color:var(--amber2);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:5px;}
+.ai-result-text{font-size:11px;color:var(--text);line-height:1.6;}
+.ai-result-text[contenteditable="true"]{outline:none;border-bottom:1px dashed var(--border2);padding-bottom:2px;}
+.ai-result-text[contenteditable="true"]:focus{border-color:var(--amber);}
+
+/* OIZOM FIT ENGINE */
+.oizom-product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:12px;transition:var(--trans);}
+.oizom-product-card:hover{border-color:var(--border2);}
+.oizom-product-icon{font-size:22px;flex-shrink:0;}
+.oizom-product-name{font-size:12px;font-weight:700;color:var(--warm-white);font-family:var(--font-head);}
+.oizom-fit-score{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-left:6px;}
+.fit-high{background:rgba(101,163,13,0.2);color:#86efac;border:1px solid rgba(101,163,13,0.3);}
+.fit-med{background:rgba(217,119,6,0.2);color:var(--amber3);border:1px solid rgba(217,119,6,0.3);}
+.fit-low{background:rgba(156,125,90,0.2);color:var(--text2);border:1px solid rgba(156,125,90,0.3);}
+.oizom-product-why{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.5;}
+.oizom-pitch{font-size:10px;color:var(--amber2);margin-top:4px;font-style:italic;}
+
+/* MARKET INSIGHTS */
+.mkt-chart-area{background:var(--surface);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;}
+.mkt-chart-title{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.mini-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.mini-bar-label{font-size:10px;color:var(--text2);width:120px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mini-bar-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:3px;transition:width .8s;}
+.mini-bar-val{font-size:9px;color:var(--amber2);width:36px;text-align:right;font-family:var(--font-mono);}
+
+/* STRATEGIC BLOCK */
+.strat-card{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border2);border-radius:var(--radius);padding:16px;margin-bottom:10px;}
+.strat-num{font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--amber3);line-height:1;}
+.strat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.strat-detail{font-size:11px;color:var(--text2);margin-top:6px;line-height:1.5;}
+
+/* API NOTE BADGE */
+.api-note{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:var(--amber2);font-size:9px;font-weight:600;margin-left:6px;}
+
+/* FUNNEL */
+.funnel-bar{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.funnel-label{font-size:10px;color:var(--text2);width:100px;flex-shrink:0;}
+.funnel-track{flex:1;height:18px;background:var(--surface3);border-radius:3px;overflow:hidden;position:relative;}
+.funnel-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:700;color:white;font-family:var(--font-mono);transition:width .8s;}
+.funnel-pct{font-size:9px;color:var(--muted);width:32px;text-align:right;font-family:var(--font-mono);}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;display:flex;gap:9px;align-items:flex-start;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:slideIn .3s ease;min-width:260px;max-width:330px;border-left:4px solid var(--amber);}
+.toast.t-urgent{border-left-color:var(--rust2);}
+.toast.t-good{border-left-color:var(--sage);}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-icon{font-size:16px;flex-shrink:0;}
+.toast-body{flex:1;}
+.toast-title{font-size:11px;color:var(--warm-white);font-weight:700;margin-bottom:2px;}
+.toast-msg{font-size:10px;color:var(--muted);}
+.toast-x{font-size:12px;color:var(--muted);cursor:pointer;flex-shrink:0;}
+.toast-x:hover{color:var(--text);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px;}
+
+@media(max-width:900px){
+  .kpi-strip{grid-template-columns:repeat(3,1fr);}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+  .panel{padding:16px;}
+  .topbar{padding:10px 14px;flex-wrap:wrap;gap:6px;}
+  .tabs{padding:0 12px;}
+}
+</style>
+</head>
+<body>
+
+<div id="offline-banner">📡 Offline -- all data saved locally, fully functional without internet</div>
+
+<div id="install-banner">
+  <span>📱 Install SA Trip HQ on your desktop for offline access</span>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-amber btn-sm" id="install-btn">Install</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('install-banner').classList.remove('show')">Dismiss</button>
+  </div>
+</div>
+
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-flag">🇿🇦</div>
+    <div class="logo-text">
+      <h1>SA TRIP <span>HQ</span></h1>
+      <div class="logo-sub">Oizom · 26 Apr - 15 May 2025 · JHB → DUR → CPT → JHB</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <button class="nav-btn active" onclick="go('overview')">Overview</button>
+    <button class="nav-btn" onclick="go('flights')">Flights</button>
+    <button class="nav-btn" onclick="go('meetings')">Meetings</button>
+    <button class="nav-btn" onclick="go('intel')">AI Intel</button>
+    <button class="nav-btn" onclick="go('calendar')">Calendar</button>
+    <button class="nav-btn" onclick="go('insights')">Insights</button>
+    <button class="nav-btn" onclick="go('connectors')">Connectors</button>
+  </div>
+  <div class="topbar-right">
+    <div class="online-dot" id="online-indicator"></div>
+    <div id="live-time"></div>
+    <div class="bell-btn" onclick="cycleBell()">🔔<div class="bell-badge" id="bell-count">3</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="go('overview')" id="tab-overview">⚡ Overview</div>
+  <div class="tab" onclick="go('flights')" id="tab-flights">✈️ Flights</div>
+  <div class="tab" onclick="go('meetings')" id="tab-meetings">🤝 Meetings</div>
+  <div class="tab" onclick="go('intel')" id="tab-intel">🧠 AI Intel</div>
+  <div class="tab" onclick="go('calendar')" id="tab-calendar">📅 Calendar</div>
+  <div class="tab" onclick="go('insights')" id="tab-insights">📊 Insights</div>
+  <div class="tab" onclick="go('connectors')" id="tab-connectors">🔗 Connectors</div>
+</div>
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div class="panel active" id="panel-overview">
+  <div class="kpi-strip">
+    <div class="kpi-card k-amber"><div class="kpi-icon">🗓</div><div class="kpi-label">Total Days</div><div class="kpi-val">20</div><div class="kpi-sub">26 Apr - 15 May</div></div>
+    <div class="kpi-card k-warm"><div class="kpi-icon">🏙</div><div class="kpi-label">Cities</div><div class="kpi-val">3</div><div class="kpi-sub">JHB · DUR · CPT</div></div>
+    <div class="kpi-card k-rust"><div class="kpi-icon">🔥</div><div class="kpi-label">Hot Deals</div><div class="kpi-val" id="kpi-hot">--</div><div class="kpi-sub">Log in Meetings</div></div>
+    <div class="kpi-card k-sage"><div class="kpi-icon">💰</div><div class="kpi-label">Exp. Revenue</div><div class="kpi-val" id="kpi-rev">--</div><div class="kpi-sub">ZAR · prob-adjusted</div></div>
+    <div class="kpi-card k-teal"><div class="kpi-icon">✈️</div><div class="kpi-label">AI Notes</div><div class="kpi-val" id="kpi-notes">0</div><div class="kpi-sub">Meeting intel saved</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Trip Timeline</div>
+        <button class="btn btn-ghost btn-sm" onclick="openDayEdit(0)">+ Add Note</button>
+      </div>
+      <div class="card-body" style="max-height:480px;overflow-y:auto;padding:8px;">
+        <div id="timeline-wrap"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Days by City</div></div>
+        <div class="card-body">
+          <div class="bar-chart" id="city-bars"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <span style="font-size:9px;color:#fcd34d;">■ JHB 11d</span>
+            <span style="font-size:9px;color:#fdba74;">■ DUR 1d</span>
+            <span style="font-size:9px;color:#5eead4;">■ CPT 3d</span>
+            <span style="font-size:9px;color:#bef264;">■ Buffer 5d</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🎯 Deal Pipeline</div><span style="font-size:9px;color:var(--muted);">Live</span></div>
+        <div class="card-body">
+          <div class="donut-wrap">
+            <svg width="96" height="96" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#3a2411" stroke-width="16"/>
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#c2410c" stroke-width="16" stroke-dasharray="68 226" stroke-dashoffset="23" stroke-linecap="round" id="d-hot"/>
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#d97706" stroke-width="16" stroke-dasharray="56 226" stroke-dashoffset="-45" stroke-linecap="round" id="d-warm"/>
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#0d9488" stroke-width="16" stroke-dasharray="34 226" stroke-dashoffset="-101" stroke-linecap="round" id="d-cold"/>
+              <text x="50" y="47" text-anchor="middle" font-family="Playfair Display,serif" font-size="15" font-weight="700" fill="#fffbf5" id="d-num">0</text>
+              <text x="50" y="59" text-anchor="middle" font-family="Mulish,sans-serif" font-size="7" fill="#9c7d5a">TOTAL</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#c2410c"></div><span class="leg-lbl">Hot</span><span class="leg-val" id="leg-hot">0</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#d97706"></div><span class="leg-lbl">Warm</span><span class="leg-val" id="leg-warm">0</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#0d9488"></div><span class="leg-lbl">Cold</span><span class="leg-val" id="leg-cold">0</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#9c7d5a"></div><span class="leg-lbl">Pending</span><span class="leg-val" id="leg-pend">0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">💹 Expected Revenue by City (ZAR)</div></div>
+    <div class="card-body">
+      <div class="h-bars">
+        <div class="h-row"><div class="h-row-top"><span class="h-lbl">Johannesburg</span><span class="h-val" id="rv-jhb">R 0</span></div><div class="h-track"><div class="h-fill" id="hb-jhb" style="width:0%;background:linear-gradient(90deg,#d97706,#fbbf24);"></div></div></div>
+        <div class="h-row"><div class="h-row-top"><span class="h-lbl">Durban</span><span class="h-val" id="rv-dur">R 0</span></div><div class="h-track"><div class="h-fill" id="hb-dur" style="width:0%;background:linear-gradient(90deg,#c2410c,#ea580c);"></div></div></div>
+        <div class="h-row"><div class="h-row-top"><span class="h-lbl">Cape Town</span><span class="h-val" id="rv-cpt">R 0</span></div><div class="h-track"><div class="h-fill" id="hb-cpt" style="width:0%;background:linear-gradient(90deg,#0d9488,#2dd4bf);"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ FLIGHTS ═══════════════════ -->
+<div class="panel" id="panel-flights">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header"><div class="card-title">✈️ Flight Search</div></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="field"><label>From</label><select id="f-from"><option>Johannesburg (JHB)</option><option>Durban (DUR)</option><option>Cape Town (CPT)</option></select></div>
+        <div class="field"><label>To</label><select id="f-to"><option>Durban (DUR)</option><option>Cape Town (CPT)</option><option>Johannesburg (JHB)</option></select></div>
+        <div class="field"><label>Date</label><input type="date" id="f-date" value="2025-05-08"></div>
+        <div class="field"><label>Class</label><select id="f-class"><option>Economy</option><option>Business</option></select></div>
+        <button class="btn btn-amber" onclick="searchFlights()" style="align-self:flex-end;">Search</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec-label">Pre-Loaded Trip Legs -- Recommended Options</div>
+  <div id="flight-results"></div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-header"><div class="card-title">📊 Flight Strategy</div></div>
+    <div class="card-body">
+      <div class="insight-card good"><div class="ic-icon">☀️</div><div><h4>Morning Flights (06:00-09:00) = Maximum Productivity</h4><p>Arrive, settle, 2hr buffer, afternoon meetings fresh. Ideal for all 3 transfer legs.</p></div></div>
+      <div class="insight-card warn"><div class="ic-icon">⚠️</div><div><h4>8 May: JHB to DUR -- Same-Day Meeting Risk</h4><p>Book 06:30 flight. Ensure 2hr gap before first Durban meeting. Travel light, no checked bags.</p></div></div>
+      <div class="insight-card warn"><div class="ic-icon">⚠️</div><div><h4>9 May: DUR to CPT -- Back-to-Back Transit</h4><p>Pre-book CPT hotel near first meeting venue. Airport transfer arranged in advance.</p></div></div>
+      <div class="insight-card good"><div class="ic-icon">✅</div><div><h4>12 May: CPT to JHB -- Recovery Day</h4><p>No meetings. Consider afternoon flight for morning CPT follow-up breakfast meeting.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MEETINGS ═══════════════════ -->
+<div class="panel" id="panel-meetings">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title" id="form-title">➕ Log New Meeting</div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="clearMeetingForm()">Clear</button>
+        <button class="btn btn-amber" onclick="saveMeeting()">💾 Save Meeting</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <input type="hidden" id="m-edit-idx" value="-1">
+      <div class="form-row">
+        <div class="field"><label>Client / Partner Name *</label><input type="text" id="m-client" placeholder="e.g. Acme Distributors"></div>
+        <div class="field"><label>Meeting Type</label><select id="m-type"><option>ERO Meeting</option><option>AMS Haden</option><option>Client Meeting</option><option>Follow-up</option><option>Presentation</option><option>Site Visit</option><option>Networking</option></select></div>
+        <div class="field"><label>Industry / Sector</label><select id="m-industry"><option>Smart City / Municipal</option><option>Construction / Mining</option><option>Landfill / Waste Management</option><option>Industrial / Manufacturing</option><option>Oil and Gas / EHS</option><option>Environment / NGO</option><option>Government / Regulatory</option><option>Research / Academia</option><option>Real Estate / Developer</option><option>Other</option></select></div>
+        <div class="field"><label>City</label><select id="m-city"><option>Johannesburg</option><option>Durban</option><option>Cape Town</option></select></div>
+        <div class="field"><label>Date</label><input type="date" id="m-date" value="2025-04-27"></div>
+        <div class="field"><label>Time</label><input type="time" id="m-time"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Location / Venue</label><input type="text" id="m-location" placeholder="e.g. Sandton Convention Centre"></div>
+        <div class="field"><label>Contact Person</label><input type="text" id="m-contact" placeholder="Name"></div>
+        <div class="field"><label>Phone</label><input type="text" id="m-phone" placeholder="+27 ..."></div>
+        <div class="field"><label>Email</label><input type="email" id="m-email" placeholder="contact@company.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Deal Status</label><select id="m-status"><option>Hot</option><option>Warm</option><option>Cold</option><option>Pending</option></select></div>
+        <div class="field"><label>Opportunity Value (ZAR)</label><input type="number" id="m-value" placeholder="500000"></div>
+        <div class="field"><label>Probability %</label><input type="number" id="m-prob" placeholder="70" min="0" max="100"></div>
+        <div class="field"><label>Priority</label><select id="m-priority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+        <div class="field"><label>Follow-Up Date</label><input type="date" id="m-followup"></div>
+      </div>
+      <div class="form-row">
+        <div class="field" style="flex:2;"><label>Key Insights / Notes</label><textarea id="m-insights" placeholder="Key takeaways, client interest, product discussions..."></textarea></div>
+        <div class="field" style="flex:2;"><label>Next Action</label><textarea id="m-action" placeholder="What needs to happen next..."></textarea></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <div class="card-title">📋 All Meetings</div>
+      <div style="display:flex;gap:7px;align-items:center;">
+        <span id="m-count" style="font-size:10px;color:var(--amber2);">0 meetings</span>
+        <input type="text" id="m-search" placeholder="Search..." style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:20px;font-size:10px;outline:none;width:110px;">
+        <select id="m-filter" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:4px 7px;border-radius:6px;font-size:10px;outline:none;">
+          <option value="">All Status</option><option value="Hot">Hot</option><option value="Warm">Warm</option><option value="Cold">Cold</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇️ CSV</button>
+      </div>
+    </div>
+    <div class="card-body" style="overflow-x:auto;padding:10px;">
+      <table class="mtable"><thead><tr>
+        <th>Client</th><th>Type</th><th>Industry</th><th>City</th><th>Date</th><th>Time</th>
+        <th>Status</th><th>Value</th><th>Prob%</th><th>Exp Rev</th>
+        <th>Contact</th><th>Follow-up</th><th>Actions</th>
+      </tr></thead><tbody id="m-tbody"></tbody></table>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Pipeline Gauge</div></div>
+      <div class="card-body"><div class="gauge-stack" id="gauge-wrap"><div style="color:var(--muted);font-size:11px;text-align:center;padding:16px;">Log meetings to see pipeline</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Top 5 Opportunities</div></div>
+      <div class="card-body"><div id="top5-wrap"><div style="color:var(--muted);font-size:11px;text-align:center;padding:16px;">No data yet</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Summary Stats</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;justify-content:space-between;padding:7px;background:var(--surface);border-radius:6px;"><span style="font-size:11px;color:var(--muted);">Total Pipeline</span><span style="font-size:12px;color:var(--amber2);font-weight:700;" id="s-pipeline">R 0</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px;background:var(--surface);border-radius:6px;"><span style="font-size:11px;color:var(--muted);">Expected Revenue</span><span style="font-size:12px;color:var(--sage);font-weight:700;" id="s-rev">R 0</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px;background:var(--surface);border-radius:6px;"><span style="font-size:11px;color:var(--muted);">Avg Deal Size</span><span style="font-size:12px;color:var(--teal);font-weight:700;" id="s-avg">R 0</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px;background:var(--surface);border-radius:6px;"><span style="font-size:11px;color:var(--muted);">Hot Deal Rate</span><span style="font-size:12px;color:var(--rust2);font-weight:700;" id="s-hot-rate">0%</span></div>
+        <div style="display:flex;justify-content:space-between;padding:7px;background:var(--surface);border-radius:6px;"><span style="font-size:11px;color:var(--muted);">Meetings Logged</span><span style="font-size:12px;color:var(--amber3);font-weight:700;" id="s-count">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ AI INTEL / SMART NOTE TAKER ═══════════════════ -->
+<div class="panel" id="panel-intel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div style="font-family:var(--font-head);font-size:18px;color:var(--warm-white);">🧠 AI Meeting Intelligence</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">Smart Note Taker + Oizom Fit Engine -- type raw notes, get structured analysis</div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-ghost btn-sm" onclick="clearIntel()">Clear</button>
+      <button class="btn btn-amber" onclick="runIntelAnalysis()">🧠 Analyse Notes</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportIntelNote()">⬇️ Export</button>
+    </div>
+  </div>
+
+  <!-- NOTE: AI analysis uses rule-based logic in static HTML.
+       For real LLM analysis, connect to Anthropic/OpenAI API at INTEL_API_ENDPOINT.
+       See developer notes section at bottom of file. -->
+  <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:10px;color:var(--amber2);">
+    <strong>ℹ️ AI Mode:</strong> Rule-based analysis active (fully offline). <span class="api-note">🔌 Connect AI API</span> for LLM-powered deep analysis. All notes save automatically to local storage.
+  </div>
+
+  <div class="grid-2">
+    <!-- INPUT AREA -->
+    <div>
+      <div class="intel-section">
+        <div class="intel-section-header"><div class="intel-section-title">📝 Meeting Input</div></div>
+        <div class="intel-section-body">
+          <div class="form-row">
+            <div class="field"><label>Company Name</label><input type="text" id="in-company" placeholder="e.g. EcoCity Solutions"></div>
+            <div class="field"><label>Industry</label><select id="in-industry">
+              <option value="smart_city">Smart City / Municipal</option>
+              <option value="construction">Construction / Mining</option>
+              <option value="landfill">Landfill / Waste Management</option>
+              <option value="industrial">Industrial / Manufacturing / EHS</option>
+              <option value="oil_gas">Oil and Gas</option>
+              <option value="environment">Environment / NGO / Research</option>
+              <option value="government">Government / Regulatory</option>
+              <option value="other">Other</option>
+            </select></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Meeting Participants</label><input type="text" id="in-participants" placeholder="e.g. CEO, EHS Manager, Procurement Head"></div>
+            <div class="field"><label>City</label><select id="in-city"><option>Johannesburg</option><option>Durban</option><option>Cape Town</option></select></div>
+            <div class="field"><label>Date</label><input type="date" id="in-date" value="2025-04-27"></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Decision Maker Present?</label><select id="in-dm"><option>Yes</option><option>No</option><option>Partially</option></select></div>
+            <div class="field"><label>Budget Signal</label><select id="in-budget"><option>Strong -- allocated budget</option><option>Moderate -- exploring options</option><option>Weak -- no budget yet</option><option>Unknown</option></select></div>
+            <div class="field"><label>Urgency</label><select id="in-urgency"><option>High -- immediate need</option><option>Medium -- 3-6 months</option><option>Low -- future planning</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>Competitors Mentioned</label><input type="text" id="in-competitors" placeholder="e.g. Aeroqual, Kunak, none mentioned"></div>
+            <div class="field"><label>Products Discussed</label><input type="text" id="in-products" placeholder="e.g. Polludrone, AQI monitoring"></div>
+          </div>
+          <div class="form-row">
+            <div class="field" style="flex:1;"><label>Pain Points</label><textarea id="in-pain" placeholder="What problems are they facing? What triggered this meeting?"></textarea></div>
+          </div>
+          <div class="form-row">
+            <div class="field" style="flex:1;"><label>Raw Meeting Notes</label><textarea id="in-notes" placeholder="Type your live notes here during the meeting -- unstructured is fine..." style="min-height:100px;"></textarea></div>
+          </div>
+          <div class="form-row">
+            <div class="field" style="flex:1;"><label>Next Step (your instinct)</label><textarea id="in-nextstep" placeholder="What do you think should happen next?"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS AREA -->
+    <div>
+      <div class="intel-section">
+        <div class="intel-section-header">
+          <div class="intel-section-title">🤖 AI Analysis Output</div>
+          <span style="font-size:9px;color:var(--muted);">Click any field to edit</span>
+        </div>
+        <div class="intel-section-body" id="intel-output">
+          <div style="text-align:center;padding:32px;color:var(--muted);">
+            <div style="font-size:28px;margin-bottom:8px;">🧠</div>
+            <div style="font-size:12px;">Fill the meeting inputs and click <strong style="color:var(--amber2);">Analyse Notes</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Oizom Fit Engine -->
+      <div class="intel-section" style="margin-top:14px;">
+        <div class="intel-section-header"><div class="intel-section-title">🌿 Oizom Fit Engine</div><span style="font-size:9px;color:var(--muted);">Product recommendations</span></div>
+        <div class="intel-section-body" id="oizom-fit-output">
+          <div style="text-align:center;padding:24px;color:var(--muted);">
+            <div style="font-size:22px;margin-bottom:6px;">🌿</div>
+            <div style="font-size:11px;">Run analysis to see Oizom product recommendations</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Intel Notes -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-header">
+      <div class="card-title">🗂️ Saved Meeting Intelligence</div>
+      <span id="intel-count" style="font-size:10px;color:var(--amber2);">0 notes</span>
+    </div>
+    <div class="card-body" id="intel-list-wrap">
+      <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">No intelligence notes saved yet. Run analysis and save above.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CALENDAR ═══════════════════ -->
+<div class="panel" id="panel-calendar">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 April - May 2025</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          <span style="font-size:8px;padding:2px 6px;border-radius:20px;background:rgba(217,119,6,0.2);color:#fcd34d;">■ JHB</span>
+          <span style="font-size:8px;padding:2px 6px;border-radius:20px;background:rgba(194,65,12,0.2);color:#fdba74;">■ DUR</span>
+          <span style="font-size:8px;padding:2px 6px;border-radius:20px;background:rgba(13,148,136,0.2);color:#5eead4;">■ CPT</span>
+          <span style="font-size:8px;padding:2px 6px;border-radius:20px;background:rgba(101,163,13,0.2);color:#bef264;">■ Travel</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="sec-label" style="margin-bottom:7px;">April 2025</div>
+        <div class="cal-grid" id="cal-apr"></div>
+        <div class="sec-label" style="margin-top:14px;margin-bottom:7px;">May 2025</div>
+        <div class="cal-grid" id="cal-may"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔔 Smart Alerts</div>
+          <button class="btn btn-amber btn-sm" onclick="requestNotifPerm()">Enable Push</button>
+        </div>
+        <div class="card-body" style="max-height:240px;overflow-y:auto;" id="notif-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚙️ Alert Settings</div></div>
+        <div class="card-body">
+          <div class="tog-row"><span class="tog-label">🌅 Morning briefing (07:00)</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="tog-row"><span class="tog-label">✈️ Pre-flight alerts (3 hrs before)</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="tog-row"><span class="tog-label">🤝 Meeting reminders (30 min)</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="tog-row"><span class="tog-label">📋 Overdue follow-up nudges</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="tog-row"><span class="tog-label">🌙 Evening debrief (21:00)</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div style="margin-top:9px;padding:9px 11px;background:var(--surface);border-radius:8px;border:1px solid rgba(217,119,6,0.2);">
+            <div style="font-size:9px;color:var(--amber2);margin-bottom:3px;">STATUS</div>
+            <div style="font-size:10px;color:var(--muted);" id="notif-status">Click "Enable Push" to activate browser notifications</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">💾 Offline Storage</div></div>
+        <div class="card-body">
+          <div class="storage-bar"><div class="storage-icon">🗄️</div><div class="storage-text">Meetings</div><div class="storage-val" id="store-m">0</div></div>
+          <div class="storage-bar"><div class="storage-icon">🧠</div><div class="storage-text">Intel Notes</div><div class="storage-val" id="store-i">0</div></div>
+          <div class="storage-bar"><div class="storage-icon">📝</div><div class="storage-text">Notes</div><div class="storage-val" id="store-n">0</div></div>
+          <div class="storage-bar"><div class="storage-icon">🕐</div><div class="storage-text">Last Saved</div><div class="storage-val" id="store-t">Never</div></div>
+          <div style="display:flex;gap:7px;margin-top:9px;">
+            <button class="btn btn-amber btn-sm" onclick="exportJSON()" style="flex:1;">⬇️ Export</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-input').click()" style="flex:1;">⬆️ Import</button>
+            <input type="file" id="import-input" style="display:none;" accept=".json" onchange="handleImport(event)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ INSIGHTS (MARKET INTELLIGENCE) ═══════════════════ -->
+<div class="panel" id="panel-insights">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div style="font-family:var(--font-head);font-size:18px;color:var(--warm-white);">📊 South Africa Market Intelligence</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px;">Auto-generated from all meeting data -- updates as you log more meetings</div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <button class="btn btn-amber" onclick="refreshInsights()">🔄 Refresh Analysis</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportInsightReport()">⬇️ Export Report</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="grid-4" style="margin-bottom:16px;" id="insight-kpis">
+    <div class="strat-card"><div class="strat-num" id="iq-meetings">0</div><div class="strat-label">Meetings Done</div><div class="strat-detail">across 3 cities</div></div>
+    <div class="strat-card"><div class="strat-num" id="iq-hot">0</div><div class="strat-label">Hot Opportunities</div><div class="strat-detail">ready to close</div></div>
+    <div class="strat-card"><div class="strat-num" id="iq-pipeline">R0</div><div class="strat-label">Total Pipeline</div><div class="strat-detail">ZAR value</div></div>
+    <div class="strat-card"><div class="strat-num" id="iq-top-city">--</div><div class="strat-label">Top City</div><div class="strat-detail">highest potential</div></div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Charts column -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Opportunities by City</div></div>
+        <div class="card-body"><div id="ins-opp-city"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Sector Opportunity Split</div></div>
+        <div class="card-body"><div id="ins-sector"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Oizom Product Interest Ranking</div></div>
+        <div class="card-body"><div id="ins-products"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Meeting-to-Deal Funnel</div></div>
+        <div class="card-body"><div id="ins-funnel"></div></div>
+      </div>
+    </div>
+
+    <!-- Strategic output column -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Hot / Warm / Cold Distribution</div></div>
+        <div class="card-body">
+          <div class="gauge-stack" id="ins-hwc"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Partner Capability Comparison</div></div>
+        <div class="card-body"><div id="ins-partner"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Follow-up Urgency Matrix</div></div>
+        <div class="card-body"><div id="ins-urgency"></div></div>
+      </div>
+
+      <!-- Strategic Output -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">🎯 Strategic Intelligence</div><button class="btn btn-ghost btn-sm" onclick="refreshInsights()">Refresh</button></div>
+        <div class="card-body" id="strategic-output">
+          <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px;">Log meetings and run refresh to generate strategic insights</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30-Day Action Plan -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-header">
+      <div class="card-title">📅 Recommended 30-Day Post-Trip Action Plan</div>
+      <button class="btn btn-ghost btn-sm" onclick="generateActionPlan()">Generate</button>
+    </div>
+    <div class="card-body" id="action-plan-wrap">
+      <div style="color:var(--muted);font-size:11px;text-align:center;padding:16px;">Click "Generate" after logging your meetings to create a personalised action plan</div>
+    </div>
+  </div>
+
+  <!-- Insights checklist -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-header"><div class="card-title">✅ Post-Trip Action Checklist</div></div>
+    <div class="card-body"><div id="checklist-wrap"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CONNECTORS ═══════════════════ -->
+<div class="panel" id="panel-connectors">
+  <div style="margin-bottom:16px;">
+    <div style="font-family:var(--font-head);font-size:17px;color:var(--warm-white);">🔗 App Connectors</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:3px;">Connect your tools to sync data. Local features work immediately. Google integrations require OAuth2 setup -- marked clearly below.</div>
+  </div>
+
+  <!-- Google Account status -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header"><div class="card-title">👤 Google Account</div><div id="gaccount-status" class="conn-status cs-disconnected"><div class="cs-dot" style="background:var(--muted);"></div>Not Signed In</div></div>
+    <div class="card-body">
+      <button class="google-login-btn" onclick="googleSignIn()" id="google-login-btn">
+        <span style="font-size:18px;">🔵</span>
+        <span>Sign in with Google</span>
+        <span class="api-note">OAuth2 Required</span>
+      </button>
+      <div id="google-user-info" style="display:none;padding:10px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--warm-white);font-weight:600;" id="google-user-name">--</div>
+        <div style="font-size:10px;color:var(--muted);" id="google-user-email">--</div>
+      </div>
+      <div style="margin-top:10px;padding:9px 12px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);font-size:10px;color:var(--muted);">
+        <!-- DEVELOPER NOTE: Google Sign-In requires:
+             1. A Google Cloud Project with OAuth2 client ID
+             2. Domains added to Authorized Origins
+             3. google-signin or gapi library loaded
+             4. Backend token verification recommended
+             Sign-in flow: gapi.auth2.init() -> signIn() -> getAuthResponse() -->
+        <strong style="color:var(--amber2);">Developer Note:</strong> Real Google sign-in requires Google Cloud OAuth2 client. Currently shows UI placeholder only. Backend setup guide in comments.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-4">
+
+    <!-- Gmail Connector (Upgraded) -->
+    <div class="connector-card">
+      <div class="conn-head">
+        <div class="conn-logo">📧</div>
+        <div><div class="conn-name">Gmail</div><div class="conn-desc">Email and follow-ups</div></div>
+      </div>
+      <div class="conn-status cs-disconnected" id="gmail-status"><div class="cs-dot" style="background:var(--muted);"></div>Disconnected</div>
+      <div style="font-size:9px;color:var(--amber2);margin-bottom:7px;">
+        <!-- Requires: Gmail API v1, OAuth scope gmail.compose, gmail.readonly -->
+        Needs: Gmail API + OAuth2
+      </div>
+      <div class="conn-features">
+        <div class="conn-feat">Draft follow-up emails</div>
+        <div class="conn-feat">Draft meeting recap emails</div>
+        <div class="conn-feat">Import contacts from Gmail</div>
+        <div class="conn-feat">Sync follow-up actions</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="conn-btn" id="gmail-btn" onclick="connectGmail()">Connect Gmail</button>
+        <button class="conn-btn" onclick="draftFollowUp()">✉️ Draft Follow-up</button>
+        <button class="conn-btn" onclick="draftMeetingRecap()">📋 Draft Recap</button>
+      </div>
+    </div>
+
+    <!-- Google Calendar Connector (Upgraded) -->
+    <div class="connector-card">
+      <div class="conn-head">
+        <div class="conn-logo">📅</div>
+        <div><div class="conn-name">Google Calendar</div><div class="conn-desc">Sync meetings and alerts</div></div>
+      </div>
+      <div class="conn-status cs-disconnected" id="gcal-status"><div class="cs-dot" style="background:var(--muted);"></div>Disconnected</div>
+      <div style="font-size:9px;color:var(--amber2);margin-bottom:7px;">
+        <!-- Requires: Calendar API v3, OAuth scope calendar.events -->
+        Needs: Calendar API + OAuth2
+      </div>
+      <div class="conn-features">
+        <div class="conn-feat">Sync meetings to calendar</div>
+        <div class="conn-feat">Create travel day reminders</div>
+        <div class="conn-feat">Add flight reminders</div>
+        <div class="conn-feat">Block follow-up deadline slots</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="conn-btn" id="gcal-btn" onclick="connectCalendar()">Connect Calendar</button>
+        <button class="conn-btn" onclick="createCalendarEvents()">📅 Push All Meetings</button>
+        <button class="conn-btn" onclick="addFlightReminders()">✈️ Add Flight Reminders</button>
+      </div>
+    </div>
+
+    <!-- Google Docs Connector -->
+    <div class="connector-card">
+      <div class="conn-head">
+        <div class="conn-logo">📝</div>
+        <div><div class="conn-name">Google Docs</div><div class="conn-desc">Notes and documents</div></div>
+      </div>
+      <div class="conn-status cs-disconnected" id="notes-status"><div class="cs-dot" style="background:var(--muted);"></div>Disconnected</div>
+      <div style="font-size:9px;color:var(--amber2);margin-bottom:7px;">Needs: Drive API + OAuth2</div>
+      <div class="conn-features">
+        <div class="conn-feat">Export meeting notes to Doc</div>
+        <div class="conn-feat">Export AI intel summaries</div>
+        <div class="conn-feat">Import agenda documents</div>
+        <div class="conn-feat">Auto-save to Google Drive</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="conn-btn" id="notes-btn" onclick="connectDocs()">Connect Docs</button>
+        <button class="conn-btn" onclick="exportNotesToDoc()">📝 Export Notes</button>
+      </div>
+    </div>
+
+    <!-- Excel / CSV Export -->
+    <div class="connector-card">
+      <div class="conn-head">
+        <div class="conn-logo">📊</div>
+        <div><div class="conn-name">Excel / CSV</div><div class="conn-desc">Export pipeline data</div></div>
+      </div>
+      <div class="conn-status cs-connected"><div class="cs-dot" style="background:var(--sage);"></div>Always Available</div>
+      <div style="font-size:9px;color:var(--sage);margin-bottom:7px;">Works offline -- no API needed</div>
+      <div class="conn-features">
+        <div class="conn-feat">Export meetings to CSV</div>
+        <div class="conn-feat">Export AI intel notes</div>
+        <div class="conn-feat">Export full trip summary</div>
+        <div class="conn-feat">Export market insight report</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="conn-btn" onclick="exportCSV()">⬇️ Meetings CSV</button>
+        <button class="conn-btn" onclick="exportIntelCSV()">⬇️ Intel Notes CSV</button>
+        <button class="conn-btn" onclick="exportFullReport()">⬇️ Full Trip Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Section -->
+  <div class="grid-2" style="margin-top:14px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📝 Trip Notes (Local)</div>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-ghost btn-sm" onclick="clearNote()">Clear</button>
+          <button class="btn btn-amber btn-sm" onclick="saveNote()">💾 Save</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="notes-tags" id="note-tags">
+          <span class="note-tag active" onclick="switchNoteTag(this,'general')">General</span>
+          <span class="note-tag" onclick="switchNoteTag(this,'jhb')">JHB</span>
+          <span class="note-tag" onclick="switchNoteTag(this,'dur')">Durban</span>
+          <span class="note-tag" onclick="switchNoteTag(this,'cpt')">Cape Town</span>
+          <span class="note-tag" onclick="switchNoteTag(this,'followups')">Follow-ups</span>
+          <span class="note-tag" onclick="switchNoteTag(this,'expenses')">Expenses</span>
+        </div>
+        <textarea class="notes-textarea" id="notes-area" placeholder="Trip notes, observations, reminders..."></textarea>
+      </div>
+    </div>
+
+    <!-- Import and email drafts -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">📥 Import and Email</div></div>
+      <div class="card-body">
+        <div class="sec-label">Import Data</div>
+        <div class="import-zone" onclick="document.getElementById('ics-input').click()">
+          <div style="font-size:24px;margin-bottom:6px;">📅</div>
+          <h4>Drop ICS Calendar File</h4>
+          <p>Export from Google Calendar to auto-populate</p>
+          <input type="file" id="ics-input" style="display:none;" accept=".ics">
+        </div>
+        <div class="sec-label" style="margin-top:14px;">Email Drafts</div>
+        <button class="btn btn-amber" style="width:100%;margin-bottom:6px;" onclick="draftFollowUp()">✉️ Draft Follow-up Email</button>
+        <button class="btn btn-ghost" style="width:100%;margin-bottom:6px;" onclick="draftMeetingRecap()">📋 Draft Meeting Recap</button>
+        <button class="btn btn-ghost" style="width:100%;" onclick="exportFullReport()">📄 Export Full Trip Summary</button>
+        <div style="margin-top:10px;padding:9px;background:rgba(217,119,6,0.06);border-radius:var(--radius-sm);border:1px solid rgba(217,119,6,0.15);font-size:9px;color:var(--muted);">
+          PDF export: use browser Print > Save as PDF. Full PDF API requires puppeteer or wkhtmltopdf on server.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Developer Notes -->
+  <div class="card" style="margin-top:14px;">
+    <div class="card-header"><div class="card-title">👨‍💻 Developer Notes -- Backend Integration Guide</div></div>
+    <div class="card-body">
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);line-height:1.9;background:var(--surface);padding:14px;border-radius:var(--radius-sm);">
+        <div style="color:var(--sage);margin-bottom:6px;">// ============ WHAT WORKS NOW (Static HTML, Fully Offline) ============</div>
+        <div>✅ Meeting logging, editing, deleting (localStorage)</div>
+        <div>✅ AI Intel notes with rule-based Oizom product matching</div>
+        <div>✅ Pipeline KPIs, deal gauges, charts (DOM-based)</div>
+        <div>✅ Calendar view, notifications (browser Notification API)</div>
+        <div>✅ CSV/JSON export and import</div>
+        <div>✅ Trip timeline with inline day editing</div>
+        <div>✅ Notes with 6-tab system (localStorage)</div>
+        <div>✅ PWA install, offline banner, service worker registration</div>
+        <div style="color:var(--amber2);margin-top:10px;margin-bottom:6px;">// ============ CURRENTLY MOCKED (UI Placeholder Only) ============</div>
+        <div>⚠️ Google Sign-in button (simulates connected state)</div>
+        <div>⚠️ Gmail/Calendar/Docs connect buttons (open URLs only)</div>
+        <div>⚠️ AI LLM analysis (uses rule-based logic, not GPT/Claude)</div>
+        <div>⚠️ "Push All Meetings to Calendar" (requires Calendar API)</div>
+        <div style="color:var(--rust2);margin-top:10px;margin-bottom:6px;">// ============ REQUIRES BACKEND / API ============</div>
+        <div>🔌 Google OAuth2: client_id from console.cloud.google.com</div>
+        <div>🔌 Gmail API v1: scope=gmail.compose,gmail.readonly</div>
+        <div>🔌 Calendar API v3: scope=calendar.events</div>
+        <div>🔌 Drive API v3: scope=drive.file</div>
+        <div>🔌 LLM Analysis: POST to Claude/OpenAI API with meeting notes as prompt</div>
+        <div>🔌 PDF Export: puppeteer (Node) or wkhtmltopdf backend endpoint</div>
+        <div>🔌 Cloud Sync: Firebase Firestore or Supabase for multi-device sync</div>
+        <div style="color:var(--teal);margin-top:10px;margin-bottom:6px;">// ============ RECOMMENDED AI INTEGRATION POINT ============</div>
+        <div>// In runIntelAnalysis() -- replace rule-based logic with:</div>
+        <div>// const res = await fetch('YOUR_BACKEND/analyse', { method:'POST',</div>
+        <div>//   body: JSON.stringify(intelInput), headers: {'Content-Type':'application/json'} })</div>
+        <div>// const data = await res.json(); // { summary, fit, pitch, nextSteps ... }</div>
+        <div>// renderIntelOutput(data);</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Day edit modal -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal">
+    <h2>📋 Edit Day Note</h2>
+    <button class="modal-close" onclick="closeModal('day-modal')">✕</button>
+    <input type="hidden" id="edit-day-idx">
+    <div class="form-row">
+      <div class="field"><label>Date</label><input type="text" id="edit-day-date" readonly style="opacity:.6;"></div>
+      <div class="field"><label>City</label><input type="text" id="edit-day-city" readonly style="opacity:.6;"></div>
+    </div>
+    <div class="form-row"><div class="field"><label>Meeting Type / Title</label><input type="text" id="edit-day-type"></div></div>
+    <div class="form-row"><div class="field"><label>Notes / Agenda</label><textarea id="edit-day-note" style="min-height:80px;"></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('day-modal')">Cancel</button>
+      <button class="btn btn-amber" onclick="saveDayEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Email draft modal -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal modal-lg">
+    <h2 id="email-modal-title">✉️ Draft Email</h2>
+    <button class="modal-close" onclick="closeModal('email-modal')">✕</button>
+    <div class="form-row">
+      <div class="field"><label>To</label><input type="text" id="em-to" placeholder="recipient@company.com"></div>
+      <div class="field"><label>Subject</label><input type="text" id="em-subject"></div>
+    </div>
+    <div class="field" style="margin-bottom:12px;"><label>Body (editable)</label><textarea class="notes-textarea" id="em-body" style="min-height:220px;"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('email-modal')">Cancel</button>
+      <button class="btn btn-amber" onclick="openMailClient()">📧 Open in Mail App</button>
+    </div>
+  </div>
+</div>
+
+<!-- Intel detail modal -->
+<div class="modal-overlay" id="intel-modal">
+  <div class="modal modal-lg">
+    <h2 id="intel-modal-title">🧠 Meeting Intelligence</h2>
+    <button class="modal-close" onclick="closeModal('intel-modal')">✕</button>
+    <div id="intel-modal-body" style="font-size:11px;color:var(--text);line-height:1.8;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('intel-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- ═══════════════ SCRIPT ═══════════════ -->
+<script>
+/* ================================================================
+   SA TRIP HQ v3 -- JavaScript
+   Phases: 1-Fix, 2-Connectors, 3-AI Intel, 4-Oizom Fit,
+           5-Market Insights, 6-Edit, 7-Export, 8-Dev Notes
+================================================================ */
+
+// ── STATIC DATA ─────────────────────────────────────────────────
+var ITIN = [
+  {num:'26',month:'APR',day:'Sat',city:'JHB',type:'Arrival Day',note:'Arrive & settle -- O.R. Tambo',tight:false,travel:false},
+  {num:'27',month:'APR',day:'Sun',city:'JHB',type:'ERO Meeting',note:'ERO Week 1 -- Day 1',tight:false,travel:false},
+  {num:'28',month:'APR',day:'Mon',city:'JHB',type:'ERO Meeting',note:'ERO Week 1 -- Day 2',tight:false,travel:false},
+  {num:'29',month:'APR',day:'Tue',city:'JHB',type:'ERO Meeting',note:'ERO Week 1 -- Day 3',tight:false,travel:false},
+  {num:'30',month:'APR',day:'Wed',city:'JHB',type:'ERO Meeting',note:'ERO Week 1 -- Day 4',tight:false,travel:false},
+  {num:'01',month:'MAY',day:'Thu',city:'JHB',type:'ERO Meeting',note:'ERO Week 1 -- Day 5',tight:false,travel:false},
+  {num:'02',month:'MAY',day:'Fri',city:'JHB',type:'Buffer Day',note:'Admin, prep, emails',tight:false,travel:false},
+  {num:'03',month:'MAY',day:'Sat',city:'JHB',type:'Weekend Buffer',note:'Rest / AMS Haden prep',tight:false,travel:false},
+  {num:'04',month:'MAY',day:'Sun',city:'JHB',type:'AMS Haden',note:'AMS Haden Week -- Day 1',tight:false,travel:false},
+  {num:'05',month:'MAY',day:'Mon',city:'JHB',type:'AMS Haden',note:'AMS Haden Week -- Day 2',tight:false,travel:false},
+  {num:'06',month:'MAY',day:'Tue',city:'JHB',type:'AMS Haden',note:'AMS Haden Week -- Day 3',tight:false,travel:false},
+  {num:'07',month:'MAY',day:'Wed',city:'JHB',type:'AMS Haden',note:'AMS Haden Week -- Day 4',tight:false,travel:false},
+  {num:'08',month:'MAY',day:'Thu',city:'DUR',type:'Travel + Meetings',note:'JHB -> Durban + same-day meetings',tight:true,travel:true},
+  {num:'09',month:'MAY',day:'Fri',city:'CPT',type:'Travel + Meetings',note:'DUR -> Cape Town + meetings',tight:true,travel:true},
+  {num:'10',month:'MAY',day:'Sat',city:'CPT',type:'Cape Town Meetings',note:'Cape Town -- Day 2',tight:false,travel:false},
+  {num:'11',month:'MAY',day:'Sun',city:'CPT',type:'Cape Town Meetings',note:'Cape Town -- Day 3',tight:false,travel:false},
+  {num:'12',month:'MAY',day:'Mon',city:'JHB',type:'Return Flight',note:'Cape Town -> Johannesburg',tight:false,travel:true},
+  {num:'13',month:'MAY',day:'Tue',city:'JHB',type:'Follow-up Meetings',note:'Hot lead follow-ups',tight:false,travel:false},
+  {num:'14',month:'MAY',day:'Wed',city:'JHB',type:'Buffer / Admin',note:'Final meetings + debrief',tight:false,travel:false},
+  {num:'15',month:'MAY',day:'Thu',city:'JHB',type:'Departure',note:'Return home -- O.R. Tambo',tight:false,travel:true}
+];
+
+var FLIGHTS = [
+  {route:'JHB -> DUR',date:'8 May 2025',airline:'FlySafair',logo:'🟡',dep:'06:30',arr:'07:45',dur:'1h 15m',stops:'Non-stop',price:'R 890',eff:'h',rec:true,reason:'Earliest -- max buffer before Durban meetings'},
+  {route:'JHB -> DUR',date:'8 May 2025',airline:'Airlink',logo:'🔵',dep:'09:15',arr:'10:30',dur:'1h 15m',stops:'Non-stop',price:'R 1,150',eff:'m',rec:false,reason:''},
+  {route:'JHB -> DUR',date:'8 May 2025',airline:'Cemair',logo:'🟢',dep:'12:00',arr:'13:15',dur:'1h 15m',stops:'Non-stop',price:'R 780',eff:'l',rec:false,reason:'Too late -- limited buffer before afternoon meetings'},
+  {route:'DUR -> CPT',date:'9 May 2025',airline:'FlySafair',logo:'🟡',dep:'06:45',arr:'09:10',dur:'2h 25m',stops:'Non-stop',price:'R 1,340',eff:'h',rec:true,reason:'Early arrival -- settle before CPT meetings'},
+  {route:'DUR -> CPT',date:'9 May 2025',airline:'South African',logo:'🔵',dep:'10:00',arr:'12:30',dur:'2h 30m',stops:'Non-stop',price:'R 1,890',eff:'m',rec:false,reason:''},
+  {route:'CPT -> JHB',date:'12 May 2025',airline:'FlySafair',logo:'🟡',dep:'14:00',arr:'16:10',dur:'2h 10m',stops:'Non-stop',price:'R 1,050',eff:'h',rec:true,reason:'Afternoon flight -- morning free for CPT follow-up'},
+  {route:'CPT -> JHB',date:'12 May 2025',airline:'Airlink',logo:'🔵',dep:'07:30',arr:'09:40',dur:'2h 10m',stops:'Non-stop',price:'R 1,220',eff:'m',rec:false,reason:''}
+];
+
+var NOTIFS = [
+  {icon:'✈️',title:'Book JHB to DUR for 8 May',sub:'06:30 FlySafair recommended. Same-day Durban meetings.',time:'Action',urgent:true},
+  {icon:'🤝',title:'ERO Week starts 27 April',sub:'5 consecutive meeting days. Confirm all client times.',time:'Tomorrow',urgent:true},
+  {icon:'🏨',title:'Cape Town hotel unconfirmed',sub:'9-12 May: book near City Bowl / Century City.',time:'Needed',urgent:true},
+  {icon:'📋',title:'AMS Haden prep: Sunday 4 May',sub:'Prepare distributor capability presentations.',time:'In 8d',urgent:false},
+  {icon:'🔔',title:'Travel Day: Durban 8 May',sub:'Pack light -- 1 night only. Morning flight.',time:'In 12d',urgent:false},
+  {icon:'📞',title:'Follow-up window: 13-14 May',sub:'Two buffer days. Perfect for hot deal callbacks.',time:'In 17d',urgent:false}
+];
+
+var CHECKS = [
+  {icon:'📋',txt:'Send meeting recap emails within 24hrs of each meeting'},
+  {icon:'💼',txt:'Submit proposals to Hot deals within 48hrs'},
+  {icon:'📞',txt:'Schedule follow-up calls for all Warm deals'},
+  {icon:'📊',txt:'Update pipeline values in Post-Meeting Analysis'},
+  {icon:'✈️',txt:'Confirm flights and print boarding passes night before'},
+  {icon:'🏨',txt:'Get hotel receipts for expense claims (all cities)'},
+  {icon:'📸',txt:'Business card photos -- upload to CRM within 24hrs'},
+  {icon:'📅',txt:'Block follow-up calendar slots before leaving each city'},
+  {icon:'💡',txt:'Identify top 3 Oizom-fit deals per city before departing'}
+];
+
+var TRIP_MAP = {
+  '2025-04-26':{city:'JHB',t:'arrival'},'2025-04-27':{city:'JHB',t:'meeting'},
+  '2025-04-28':{city:'JHB',t:'meeting'},'2025-04-29':{city:'JHB',t:'meeting'},
+  '2025-04-30':{city:'JHB',t:'meeting'},'2025-05-01':{city:'JHB',t:'meeting'},
+  '2025-05-02':{city:'JHB',t:'buffer'},'2025-05-03':{city:'JHB',t:'buffer'},
+  '2025-05-04':{city:'JHB',t:'meeting'},'2025-05-05':{city:'JHB',t:'meeting'},
+  '2025-05-06':{city:'JHB',t:'meeting'},'2025-05-07':{city:'JHB',t:'meeting'},
+  '2025-05-08':{city:'DUR',t:'travel'},'2025-05-09':{city:'CPT',t:'travel'},
+  '2025-05-10':{city:'CPT',t:'meeting'},'2025-05-11':{city:'CPT',t:'meeting'},
+  '2025-05-12':{city:'JHB',t:'travel'},'2025-05-13':{city:'JHB',t:'meeting'},
+  '2025-05-14':{city:'JHB',t:'buffer'},'2025-05-15':{city:'JHB',t:'travel'}
+};
+
+// ── OIZOM PRODUCT FIT ENGINE ──────────────────────────────────────
+var OIZOM_PRODUCTS = {
+  polludrone: {name:'Polludrone',icon:'🟠',desc:'Fixed outdoor AQI station, PM2.5/PM10/NO2/SO2/CO/O3'},
+  dustroid:   {name:'Dustroid',icon:'🟤',desc:'Ruggedized dust monitor for construction and mining'},
+  pollusense: {name:'Pollusense',icon:'🔵',desc:'Portable handheld air quality surveyor'},
+  odosense:   {name:'Odosense',icon:'🟣',desc:'Odour and VOC monitoring for landfill/waste'},
+  weathercom: {name:'Weathercom',icon:'🌤️',desc:'Hyperlocal weather and micro-meteorology station'},
+  aqbot:      {name:'AQBot',icon:'🤖',desc:'AI-based AQI reporting and alert automation platform'},
+  envizom:    {name:'Envizom',icon:'📡',desc:'Central dashboard and data management platform'}
+};
+
+/* Industry to product mapping rules */
+var FIT_RULES = {
+  smart_city:    {products:['polludrone','weathercom','envizom','aqbot'],strength:'high'},
+  construction:  {products:['dustroid','polludrone'],strength:'high'},
+  landfill:      {products:['odosense','pollusense','polludrone'],strength:'high'},
+  industrial:    {products:['polludrone','aqbot','weathercom'],strength:'high'},
+  oil_gas:       {products:['polludrone','odosense','weathercom'],strength:'high'},
+  environment:   {products:['pollusense','polludrone','envizom'],strength:'med'},
+  government:    {products:['polludrone','envizom','aqbot','weathercom'],strength:'high'},
+  other:         {products:['polludrone','pollusense','envizom'],strength:'med'}
+};
+
+var PITCH_LINES = {
+  polludrone: 'Perfect for real-time outdoor AQI compliance and public reporting dashboards.',
+  dustroid:   'Proven on active construction sites -- plug and play, IP65 rated, GSM connected.',
+  pollusense: 'Ideal for rapid site surveys before installing fixed stations.',
+  odosense:   'Addresses community odour complaints with timestamped data for regulatory defence.',
+  weathercom: 'Pair with AQI data for source apportionment and dispersion modelling.',
+  aqbot:      'Automates AQI alerts and reports -- reduces manual monitoring team effort by 60%.',
+  envizom:    'Centralise all sensor data from multiple sites on one live cloud dashboard.'
+};
+
+// ── STATE ─────────────────────────────────────────────────────────
+var meetings = [];
+var notes = {general:'',jhb:'',dur:'',cpt:'',followups:'',expenses:''};
+var activeNoteTag = 'general';
+var itinEdits = {};
+var intelNotes = [];
+var deferredInstall = null;
+var bellIdx = 0;
+var bellNotifs = NOTIFS.slice();
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  loadFromStorage();
+  updateClock();
+  setInterval(updateClock, 1000);
+  buildTimeline();
+  buildBarChart();
+  buildCalendar();
+  buildNotifList();
+  buildFlights(null);
+  buildChecklist();
+  setupOffline();
+  setupPWA();
+  updateStore();
+  refreshInsights();
+
+  setTimeout(function(){ toast('🌍','SA Trip HQ v3','Oizom Command Centre loaded -- all features ready',''); }, 1000);
+  setTimeout(function(){ toast('✈️','Flight Alert','Book JHB to DUR for 8 May -- same-day meetings!','urgent'); }, 4000);
+
+  var na = document.getElementById('notes-area');
+  if(na) na.addEventListener('input', function(){
+    notes[activeNoteTag] = na.value;
+    try{ localStorage.setItem('sa_notes', JSON.stringify(notes)); }catch(e){}
+  });
+
+  var ms = document.getElementById('m-search');
+  var mf = document.getElementById('m-filter');
+  if(ms) ms.addEventListener('input', renderMeetings);
+  if(mf) mf.addEventListener('change', renderMeetings);
+});
+
+function updateClock(){
+  var el = document.getElementById('live-time');
+  if(el) el.textContent = new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' SAST';
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function go(tab){
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var p = document.getElementById('panel-'+tab);
+  var t = document.getElementById('tab-'+tab);
+  if(p) p.classList.add('active');
+  if(t) t.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    if(b.textContent.toLowerCase().replace(/\s/g,'').indexOf(tab.slice(0,4))>=0) b.classList.add('active');
+  });
+  if(tab==='insights') refreshInsights();
+}
+
+// ── OFFLINE DETECTION ─────────────────────────────────────────────
+function setupOffline(){
+  var dot = document.getElementById('online-indicator');
+  function upd(){
+    var online = navigator.onLine;
+    if(dot){ dot.classList.toggle('offline-dot',!online); dot.title = online?'Online':'Offline'; }
+    document.body.classList.toggle('offline',!online);
+  }
+  window.addEventListener('online',upd);
+  window.addEventListener('offline',upd);
+  upd();
+}
+
+// ── PWA ────────────────────────────────────────────────────────────
+function setupPWA(){
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferredInstall = e;
+    document.getElementById('install-banner').classList.add('show');
+  });
+  var installBtn = document.getElementById('install-btn');
+  if(installBtn) installBtn.onclick = async function(){
+    if(!deferredInstall) return;
+    deferredInstall.prompt();
+    var result = await deferredInstall.userChoice;
+    if(result.outcome==='accepted') toast('✅','Installed!','SA Trip HQ is now on your desktop','good');
+    deferredInstall = null;
+    document.getElementById('install-banner').classList.remove('show');
+  };
+
+  /* Service worker for offline caching */
+  if('serviceWorker' in navigator){
+    var sw = "const C='sa-trip-v3';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['./']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./')))))";
+    var blob = new Blob([sw],{type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(function(){});
+  }
+}
+
+// ── LOCAL STORAGE ─────────────────────────────────────────────────
+function saveToStorage(){
+  try{
+    localStorage.setItem('sa_meetings', JSON.stringify(meetings));
+    localStorage.setItem('sa_notes', JSON.stringify(notes));
+    localStorage.setItem('sa_itin', JSON.stringify(itinEdits));
+    localStorage.setItem('sa_intel', JSON.stringify(intelNotes));
+    localStorage.setItem('sa_saved', new Date().toLocaleTimeString());
+    updateStore();
+  }catch(e){}
+}
+function loadFromStorage(){
+  try{
+    var m = localStorage.getItem('sa_meetings'); if(m) meetings = JSON.parse(m);
+    var n = localStorage.getItem('sa_notes'); if(n) notes = JSON.parse(n);
+    var ie = localStorage.getItem('sa_itin'); if(ie) itinEdits = JSON.parse(ie);
+    var ii = localStorage.getItem('sa_intel'); if(ii) intelNotes = JSON.parse(ii);
+    renderMeetings(); updateKPIs(); renderIntelList();
+    var na = document.getElementById('notes-area');
+    if(na) na.value = notes[activeNoteTag]||'';
+  }catch(e){}
+}
+function updateStore(){
+  var t = localStorage.getItem('sa_saved');
+  var sm = document.getElementById('store-m');
+  var si = document.getElementById('store-i');
+  var sn = document.getElementById('store-n');
+  var st = document.getElementById('store-t');
+  if(sm) sm.textContent = meetings.length+' records';
+  if(si) si.textContent = intelNotes.length+' notes';
+  if(sn) sn.textContent = Object.values(notes).filter(function(v){ return v.trim(); }).length+' notes';
+  if(st) st.textContent = t||'Never';
+  var ki = document.getElementById('kpi-notes');
+  if(ki) ki.textContent = intelNotes.length;
+}
+
+function exportJSON(){
+  var d = {meetings:meetings,notes:notes,itinEdits:itinEdits,intelNotes:intelNotes,exported:new Date().toISOString()};
+  downloadFile('SA_Trip_Data_'+today()+'.json', 'application/json', JSON.stringify(d,null,2));
+  toast('⬇️','Exported','Full trip data downloaded as JSON','good');
+}
+function handleImport(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(ev){
+    try{
+      var d = JSON.parse(ev.target.result);
+      if(d.meetings) meetings = d.meetings;
+      if(d.notes) notes = d.notes;
+      if(d.itinEdits) itinEdits = d.itinEdits;
+      if(d.intelNotes) intelNotes = d.intelNotes;
+      saveToStorage(); renderMeetings(); updateKPIs(); buildTimeline(); renderIntelList();
+      toast('⬆️','Imported','Trip data restored','good');
+    }catch(ex){ toast('❌','Import Failed','Invalid JSON file','urgent'); }
+  };
+  r.readAsText(f);
+}
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function downloadFile(name, mime, content){
+  var a = document.createElement('a');
+  a.href = 'data:'+mime+';charset=utf-8,'+encodeURIComponent(content);
+  a.download = name; a.click();
+}
+
+// ── TIMELINE ─────────────────────────────────────────────────────
+function buildTimeline(){
+  var wrap = document.getElementById('timeline-wrap');
+  if(!wrap) return;
+  var cityClass = {JHB:'c-jhb',DUR:'c-dur',CPT:'c-cpt'};
+  var cityFull = {JHB:'Johannesburg',DUR:'Durban',CPT:'Cape Town'};
+  wrap.innerHTML = ITIN.map(function(d,i){
+    var edit = itinEdits[i]||{};
+    var type = edit.type||d.type;
+    var note = edit.note||d.note;
+    return '<div class="tl-day">'+
+      '<div class="tl-date"><div class="tl-num">'+d.num+'</div><div class="tl-month">'+d.month+'</div><div class="tl-weekday">'+d.day+'</div></div>'+
+      '<div class="tl-content'+(d.tight?' tight':'')+'">'+
+        '<div><div class="tl-type">'+type+'</div><div class="tl-note">'+note+'</div></div>'+
+        '<div class="tl-right">'+
+          '<span class="city-pill '+(d.travel?'c-travel':cityClass[d.city])+'">'+( d.travel?'>>> '+d.city:cityFull[d.city])+'</span>'+
+          (d.tight?'<span class="tight-badge">TIGHT</span>':'')+
+          '<span class="tl-edit-btn" onclick="openDayEdit('+i+')">Edit</span>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openDayEdit(idx){
+  var d = ITIN[idx];
+  var edit = itinEdits[idx]||{};
+  document.getElementById('edit-day-idx').value = idx;
+  document.getElementById('edit-day-date').value = d.num+' '+d.month+' 2025';
+  document.getElementById('edit-day-city').value = d.city;
+  document.getElementById('edit-day-type').value = edit.type||d.type;
+  document.getElementById('edit-day-note').value = edit.note||d.note;
+  document.getElementById('day-modal').classList.add('open');
+}
+function saveDayEdit(){
+  var idx = parseInt(document.getElementById('edit-day-idx').value);
+  itinEdits[idx] = {
+    type: document.getElementById('edit-day-type').value,
+    note: document.getElementById('edit-day-note').value
+  };
+  saveToStorage(); buildTimeline(); closeModal('day-modal');
+  toast('✅','Day Updated','Timeline updated','good');
+}
+
+// ── BAR CHART ────────────────────────────────────────────────────
+function buildBarChart(){
+  var data = [
+    {l:'JHB',v:11,bg:'linear-gradient(180deg,#fbbf24,#d97706)'},
+    {l:'DUR',v:1, bg:'linear-gradient(180deg,#fb923c,#c2410c)'},
+    {l:'CPT',v:3, bg:'linear-gradient(180deg,#2dd4bf,#0d9488)'},
+    {l:'Buf',v:5, bg:'linear-gradient(180deg,#86efac,#65a30d)'}
+  ];
+  var el = document.getElementById('city-bars');
+  if(!el) return;
+  el.innerHTML = data.map(function(d){
+    var h = Math.round(d.v/11*100);
+    return '<div class="bar-wrap"><div class="bv">'+d.v+'d</div><div class="bar-fill" style="height:'+h+'px;background:'+d.bg+';"></div><div class="bl">'+d.l+'</div></div>';
+  }).join('');
+}
+
+// ── FLIGHTS ──────────────────────────────────────────────────────
+function buildFlights(data){
+  data = data||FLIGHTS;
+  var eff = {h:'<span class="eff-pill eff-h">High</span>',m:'<span class="eff-pill eff-m">Med</span>',l:'<span class="eff-pill eff-l">Low</span>'};
+  var el = document.getElementById('flight-results');
+  if(!el) return;
+  el.innerHTML = data.map(function(f){
+    return '<div class="flight-card'+(f.rec?' rec':'')+'">'+
+      (f.rec?'<div class="rec-badge">RECOMMENDED</div>':'')+
+      '<div class="airline-blob">'+f.logo+'</div>'+
+      '<div class="fl-times">'+
+        '<div class="fl-t"><div class="fl-t-main">'+f.dep+'</div><div class="fl-t-code">'+f.route.split(' -> ')[0]+'</div></div>'+
+        '<div class="fl-line"><div class="fl-dur">'+f.dur+'</div><div class="fl-hr"></div><div class="fl-stops">'+f.stops+'</div></div>'+
+        '<div class="fl-t"><div class="fl-t-main">'+f.arr+'</div><div class="fl-t-code">'+f.route.split(' -> ')[1]+'</div></div>'+
+      '</div>'+
+      '<div class="fl-meta">'+
+        '<div class="fl-price">'+f.price+'</div>'+
+        '<div style="font-size:9px;color:var(--muted);">'+f.date+'</div>'+
+        eff[f.eff]+
+        (f.reason?'<div style="font-size:9px;color:var(--amber2);max-width:130px;margin-top:4px;">'+f.reason+'</div>':'')+
+        '<button class="book-btn" onclick="toast(\'✈️\',\'Booking\',\'Opening '+f.airline+'...\',\'\')">Book Now</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function searchFlights(){
+  var from = document.getElementById('f-from').value.slice(0,3);
+  var to = document.getElementById('f-to').value.slice(0,3);
+  var route = from+' -> '+to;
+  var f = FLIGHTS.filter(function(x){ return x.route===route; });
+  buildFlights(f.length?f:FLIGHTS);
+  toast('🔍','Search','Showing '+( f.length?f.length:FLIGHTS.length)+' results for '+from+' to '+to,'');
+}
+
+// ── MEETINGS FORM ────────────────────────────────────────────────
+function clearMeetingForm(){
+  ['m-client','m-location','m-contact','m-phone','m-email','m-value','m-prob','m-insights','m-action','m-time'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('m-edit-idx').value = -1;
+  document.getElementById('form-title').textContent = '➕ Log New Meeting';
+}
+
+function saveMeeting(){
+  var client = document.getElementById('m-client').value.trim();
+  if(!client){ toast('⚠️','Missing','Please enter a client name','urgent'); return; }
+  var m = {
+    id: Date.now(), client:client,
+    type: document.getElementById('m-type').value,
+    industry: document.getElementById('m-industry').value,
+    city: document.getElementById('m-city').value,
+    date: document.getElementById('m-date').value,
+    time: document.getElementById('m-time').value,
+    location: document.getElementById('m-location').value,
+    contact: document.getElementById('m-contact').value,
+    phone: document.getElementById('m-phone').value,
+    email: document.getElementById('m-email').value,
+    status: document.getElementById('m-status').value,
+    value: parseFloat(document.getElementById('m-value').value)||0,
+    prob: parseFloat(document.getElementById('m-prob').value)||0,
+    priority: document.getElementById('m-priority').value,
+    followup: document.getElementById('m-followup').value,
+    insights: document.getElementById('m-insights').value,
+    action: document.getElementById('m-action').value
+  };
+  m.expRev = m.value * m.prob / 100;
+  var idx = parseInt(document.getElementById('m-edit-idx').value);
+  if(idx>=0){ meetings[idx]=m; toast('✏️','Updated',m.client+' record updated','good'); }
+  else{ meetings.push(m); toast('✅','Saved',m.client+' -- '+m.status+' deal added','good'); }
+  clearMeetingForm(); saveToStorage(); renderMeetings(); updateKPIs();
+}
+
+function editMeeting(idx){
+  var m = meetings[idx];
+  document.getElementById('m-edit-idx').value = idx;
+  document.getElementById('form-title').textContent = 'Editing: '+m.client;
+  var fields = ['client','type','industry','city','date','time','location','contact','phone','email','status','value','prob','priority','followup','insights','action'];
+  fields.forEach(function(f){ var el=document.getElementById('m-'+f); if(el) el.value=m[f]||''; });
+  go('meetings'); window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function deleteMeeting(idx){
+  if(!confirm('Delete this meeting record?')) return;
+  meetings.splice(idx,1); saveToStorage(); renderMeetings(); updateKPIs();
+}
+
+function renderMeetings(){
+  var tbody = document.getElementById('m-tbody');
+  if(!tbody) return;
+  var search = (document.getElementById('m-search')||{}).value||'';
+  var filter = (document.getElementById('m-filter')||{}).value||'';
+  var cnt = document.getElementById('m-count');
+  if(cnt) cnt.textContent = meetings.length+' meeting'+(meetings.length!==1?'s':'');
+
+  var data = meetings.filter(function(m){
+    return (!search||(m.client+m.city+m.type).toLowerCase().includes(search.toLowerCase()))
+        && (!filter||m.status===filter);
+  });
+
+  if(!data.length){
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:24px;">'+(meetings.length?'No matches found':'No meetings logged yet -- add above')+'</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(function(m){
+    var i = meetings.indexOf(m);
+    var st = m.status.toLowerCase();
+    return '<tr>'+
+      '<td><strong>'+m.client+'</strong><br><span style="font-size:9px;color:var(--muted);">'+( m.priority||'')+' priority</span></td>'+
+      '<td style="font-size:10px;">'+m.type+'</td>'+
+      '<td style="font-size:10px;">'+m.industry.replace(/_/g,' ')+'</td>'+
+      '<td>'+m.city+'</td>'+
+      '<td style="font-family:var(--font-mono);font-size:10px;">'+m.date+'</td>'+
+      '<td style="font-family:var(--font-mono);font-size:10px;">'+(m.time||'--')+'</td>'+
+      '<td><span class="deal-badge d-'+st+'">'+m.status+'</span></td>'+
+      '<td style="font-family:var(--font-mono);font-size:10px;">'+fmt(m.value)+'</td>'+
+      '<td style="font-family:var(--font-mono);font-size:10px;">'+m.prob+'%</td>'+
+      '<td style="color:var(--sage);font-weight:700;font-family:var(--font-mono);font-size:10px;">'+fmt(m.expRev)+'</td>'+
+      '<td style="font-size:10px;">'+(m.contact||'--')+'</td>'+
+      '<td style="font-family:var(--font-mono);font-size:10px;">'+(m.followup||'--')+'</td>'+
+      '<td><button class="row-edit-btn" onclick="editMeeting('+i+')" title="Edit">✏️</button><button class="row-del-btn" onclick="deleteMeeting('+i+')" title="Delete">🗑️</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function fmt(n){ return 'R '+Math.round(n).toLocaleString('en-ZA'); }
+
+function updateKPIs(){
+  var hot=0,warm=0,cold=0,pend=0,pipeline=0,rev=0;
+  meetings.forEach(function(m){
+    pipeline+=m.value; rev+=m.expRev;
+    if(m.status==='Hot') hot++;
+    else if(m.status==='Warm') warm++;
+    else if(m.status==='Cold') cold++;
+    else pend++;
+  });
+  var avg = meetings.length?pipeline/meetings.length:0;
+  var hotPct = meetings.length?Math.round(hot/meetings.length*100):0;
+
+  function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+  set('kpi-hot',hot||'--'); set('kpi-rev',rev?fmt(rev):'--');
+  set('leg-hot',hot); set('leg-warm',warm); set('leg-cold',cold); set('leg-pend',pend);
+  set('d-num',meetings.length);
+  set('s-pipeline',fmt(pipeline)); set('s-rev',fmt(rev));
+  set('s-avg',fmt(avg)); set('s-hot-rate',hotPct+'%'); set('s-count',meetings.length);
+
+  /* Revenue by city */
+  var cv={Johannesburg:0,Durban:0,'Cape Town':0};
+  meetings.forEach(function(m){ if(cv[m.city]!==undefined) cv[m.city]+=m.expRev; });
+  var mx=Math.max.apply(null,Object.values(cv).concat([1]));
+  set('rv-jhb',fmt(cv.Johannesburg)); set('rv-dur',fmt(cv.Durban)); set('rv-cpt',fmt(cv['Cape Town']));
+  ['jhb','dur','cpt'].forEach(function(k,i){
+    var el=document.getElementById('hb-'+k);
+    if(el) el.style.width=(Object.values(cv)[i]/mx*100)+'%';
+  });
+
+  /* Gauge */
+  var gauge=document.getElementById('gauge-wrap');
+  if(gauge){
+    if(!meetings.length){ gauge.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">Log meetings to see pipeline</div>'; }
+    else{
+      var tot=Math.max(pipeline,1);
+      var hv=meetings.filter(function(m){ return m.status==='Hot'; }).reduce(function(s,m){ return s+m.value; },0);
+      var wv=meetings.filter(function(m){ return m.status==='Warm'; }).reduce(function(s,m){ return s+m.value; },0);
+      var cv2=meetings.filter(function(m){ return m.status==='Cold'; }).reduce(function(s,m){ return s+m.value; },0);
+      gauge.innerHTML=
+        '<div class="gauge-item"><div class="gauge-lbl">Hot</div><div class="gauge-bar"><div class="gauge-fill g-hot" style="width:'+Math.round(hv/tot*100)+'%">'+fmt(hv)+'</div></div></div>'+
+        '<div class="gauge-item"><div class="gauge-lbl">Warm</div><div class="gauge-bar"><div class="gauge-fill g-warm" style="width:'+Math.round(wv/tot*100)+'%">'+fmt(wv)+'</div></div></div>'+
+        '<div class="gauge-item"><div class="gauge-lbl">Cold</div><div class="gauge-bar"><div class="gauge-fill g-cold" style="width:'+Math.round(cv2/tot*100)+'%">'+fmt(cv2)+'</div></div></div>';
+    }
+  }
+
+  /* Top 5 */
+  var t5=document.getElementById('top5-wrap');
+  if(t5){
+    if(!meetings.length){ t5.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:14px;">No data yet</div>'; }
+    else{
+      var sorted=meetings.slice().sort(function(a,b){ return b.value-a.value; }).slice(0,5);
+      t5.innerHTML=sorted.map(function(m,i){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 9px;background:var(--surface);border-radius:5px;margin-bottom:4px;">'+
+          '<div><span style="font-size:10px;color:var(--muted);margin-right:5px;">#'+(i+1)+'</span><span style="font-size:11px;">'+m.client+'</span><span style="font-size:9px;color:var(--muted);margin-left:5px;">'+m.city+'</span></div>'+
+          '<div style="text-align:right;"><span class="deal-badge d-'+m.status.toLowerCase()+'">'+m.status+'</span><div style="font-size:10px;color:var(--amber2);font-weight:700;">'+fmt(m.value)+'</div></div>'+
+        '</div>';
+      }).join('');
+    }
+  }
+  updateStore();
+}
+
+// ── AI INTEL / SMART NOTE TAKER ──────────────────────────────────
+function clearIntel(){
+  ['in-company','in-participants','in-competitors','in-products','in-pain','in-notes','in-nextstep'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+}
+
+function runIntelAnalysis(){
+  var company   = document.getElementById('in-company').value.trim();
+  var industry  = document.getElementById('in-industry').value;
+  var dm        = document.getElementById('in-dm').value;
+  var budget    = document.getElementById('in-budget').value;
+  var urgency   = document.getElementById('in-urgency').value;
+  var pain      = document.getElementById('in-pain').value.trim();
+  var raw       = document.getElementById('in-notes').value.trim();
+  var nextstep  = document.getElementById('in-nextstep').value.trim();
+  var city      = document.getElementById('in-city').value;
+  var date      = document.getElementById('in-date').value;
+  var comps     = document.getElementById('in-competitors').value.trim();
+  var prods     = document.getElementById('in-products').value.trim();
+  var parts     = document.getElementById('in-participants').value.trim();
+
+  if(!company){ toast('⚠️','Missing','Enter company name first','urgent'); return; }
+
+  /* Rule-based analysis -- replace body of this function with API call for LLM:
+     POST /api/analyse { company, industry, pain, notes, budget, urgency, dm, ... }
+     -> { summary, dealStrength, fitProducts, pitch, nextSteps, emailDraft, remarks } */
+
+  var dealStrength = budget.includes('Strong')&&dm==='Yes'&&urgency.includes('High')?'HOT':
+                     budget.includes('Moderate')||dm==='Partially'?'WARM':'COLD';
+  var fitRule = FIT_RULES[industry]||FIT_RULES.other;
+
+  var oizomFit = fitRule.products.map(function(pid){
+    var p = OIZOM_PRODUCTS[pid];
+    return {pid:pid,name:p.name,icon:p.icon,desc:p.desc,score:fitRule.strength,pitch:PITCH_LINES[pid]};
+  });
+
+  var output = {
+    id: Date.now(),
+    company:company, industry:industry, city:city, date:date, dealStrength:dealStrength,
+    dm:dm, budget:budget, urgency:urgency, competitors:comps, products:prods,
+    companySummary: company+' operates in the '+industry.replace(/_/g,' ')+' sector in '+city+'. Industry signals suggest '+(fitRule.strength==='high'?'strong':'moderate')+' alignment with Oizom products.',
+    painSummary: pain||'No specific pain points noted. Explore compliance, reporting, and monitoring gaps.',
+    meetingSummary: raw||'Raw notes not provided.',
+    opportunityAnalysis: 'Budget signal is '+budget.split(' -- ')[0].toLowerCase()+'. Decision maker '+(dm==='Yes'?'was present':'was not fully present')+'.',
+    oizomFit:oizomFit,
+    salesAngle: oizomFit.length?('Lead with '+oizomFit[0].name+': '+PITCH_LINES[oizomFit[0].pid]):'Lead with compliance monitoring and real-time AQI data.',
+    nextSteps: nextstep||('Send product brochure. Follow up within 48hrs. Propose a 30-min demo call.'),
+    competitors:comps||'None mentioned',
+    internalRemarks: 'Deal strength assessed as '+dealStrength+'. Priority: '+(dealStrength==='HOT'?'Immediate action':'Standard follow-up')+'.'
+  };
+
+  renderIntelOutput(output);
+  renderOizomFit(oizomFit);
+  toast('🧠','Analysis Complete',company+' analysed -- '+dealStrength+' opportunity','good');
+}
+
+function renderIntelOutput(o){
+  var blocks = [
+    {label:'Company Background',text:o.companySummary,cls:''},
+    {label:'Pain Point Summary',text:o.painSummary,cls:''},
+    {label:'Meeting Summary',text:o.meetingSummary,cls:''},
+    {label:'Opportunity Analysis',text:o.opportunityAnalysis,cls:''},
+    {label:'Deal Strength',text:o.dealStrength+' -- '+o.urgency,cls:o.dealStrength==='HOT'?'ai-hot':''},
+    {label:'Best Sales Angle',text:o.salesAngle,cls:'ai-good'},
+    {label:'Competitors Mentioned',text:o.competitors,cls:''},
+    {label:'Recommended Next Steps',text:o.nextSteps,cls:'ai-good'},
+    {label:'Internal Remarks (Oizom)',text:o.internalRemarks,cls:''}
+  ];
+  var html = blocks.map(function(b){
+    return '<div class="ai-result-block '+b.cls+'">'+
+      '<div class="ai-result-label">'+b.label+'</div>'+
+      '<div class="ai-result-text" contenteditable="true">'+b.text+'</div>'+
+    '</div>';
+  }).join('');
+
+  html += '<div style="margin-top:12px;display:flex;gap:7px;">'+
+    '<button class="btn btn-amber btn-sm" onclick="saveCurrentIntel()">💾 Save Intelligence Note</button>'+
+    '<button class="btn btn-ghost btn-sm" onclick="draftIntelFollowUp()">✉️ Generate Follow-up Email</button>'+
+  '</div>';
+  document.getElementById('intel-output').innerHTML = html;
+  window._currentIntel = o;
+}
+
+function renderOizomFit(products){
+  var el = document.getElementById('oizom-fit-output');
+  if(!el) return;
+  el.innerHTML = products.map(function(p){
+    var scoreCls = p.score==='high'?'fit-high':p.score==='med'?'fit-med':'fit-low';
+    var scoreLabel = p.score==='high'?'High Fit':p.score==='med'?'Medium Fit':'Lower Fit';
+    return '<div class="oizom-product-card">'+
+      '<div class="oizom-product-icon">'+p.icon+'</div>'+
+      '<div style="flex:1;">'+
+        '<div><span class="oizom-product-name">'+p.name+'</span><span class="oizom-fit-score '+scoreCls+'">'+scoreLabel+'</span></div>'+
+        '<div class="oizom-product-why">'+p.desc+'</div>'+
+        '<div class="oizom-pitch">Pitch: '+p.pitch+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function saveCurrentIntel(){
+  if(!window._currentIntel){ toast('⚠️','No analysis','Run analysis first','urgent'); return; }
+  intelNotes.push(window._currentIntel);
+  saveToStorage(); renderIntelList();
+  toast('💾','Saved','Intelligence note saved','good');
+}
+
+function renderIntelList(){
+  var el = document.getElementById('intel-list-wrap');
+  if(!el) return;
+  var cnt = document.getElementById('intel-count');
+  if(cnt) cnt.textContent = intelNotes.length+' notes';
+  if(!intelNotes.length){
+    el.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:18px;">No intelligence notes yet.</div>';
+    return;
+  }
+  el.innerHTML = intelNotes.map(function(n,i){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:5px;border:1px solid var(--border);">'+
+      '<div>'+
+        '<span style="font-size:12px;font-weight:700;color:var(--warm-white);">'+n.company+'</span>'+
+        '<span class="deal-badge d-'+n.dealStrength.toLowerCase()+'" style="margin-left:8px;">'+n.dealStrength+'</span>'+
+        '<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+n.city+' · '+n.date+' · '+n.industry.replace(/_/g,' ')+'</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:5px;">'+
+        '<button class="btn btn-ghost btn-sm" onclick="viewIntel('+i+')">View</button>'+
+        '<button class="row-del-btn" onclick="deleteIntel('+i+')">🗑️</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function viewIntel(i){
+  var n = intelNotes[i];
+  document.getElementById('intel-modal-title').textContent = '🧠 '+n.company+' -- '+n.dealStrength;
+  document.getElementById('intel-modal-body').innerHTML =
+    '<div class="ai-result-block"><div class="ai-result-label">Company</div><div class="ai-result-text" contenteditable="true">'+n.companySummary+'</div></div>'+
+    '<div class="ai-result-block"><div class="ai-result-label">Pain Points</div><div class="ai-result-text" contenteditable="true">'+n.painSummary+'</div></div>'+
+    '<div class="ai-result-block ai-'+(n.dealStrength==='HOT'?'hot':'good')+'"><div class="ai-result-label">Deal Strength</div><div class="ai-result-text" contenteditable="true">'+n.dealStrength+'</div></div>'+
+    '<div class="ai-result-block ai-good"><div class="ai-result-label">Sales Angle</div><div class="ai-result-text" contenteditable="true">'+n.salesAngle+'</div></div>'+
+    '<div class="ai-result-block"><div class="ai-result-label">Next Steps</div><div class="ai-result-text" contenteditable="true">'+n.nextSteps+'</div></div>'+
+    '<div class="ai-result-block"><div class="ai-result-label">Internal Remarks</div><div class="ai-result-text" contenteditable="true">'+n.internalRemarks+'</div></div>';
+  document.getElementById('intel-modal').classList.add('open');
+}
+function deleteIntel(i){ if(confirm('Delete this intel note?')){ intelNotes.splice(i,1); saveToStorage(); renderIntelList(); } }
+
+function draftIntelFollowUp(){
+  var n = window._currentIntel;
+  if(!n){ toast('⚠️','No analysis','Run analysis first','urgent'); return; }
+  var products = n.oizomFit.map(function(p){ return p.name; }).join(', ');
+  document.getElementById('email-modal-title').textContent = 'Follow-up: '+n.company;
+  document.getElementById('em-to').value = '';
+  document.getElementById('em-subject').value = 'Oizom Solution Proposal -- '+n.company;
+  document.getElementById('em-body').value =
+'Dear [Contact Name],\n\nThank you for our productive meeting in '+n.city+' on '+n.date+'. It was a pleasure learning about '+n.company+'\'s monitoring needs.\n\nBased on our discussion, I believe the following Oizom solutions would be an excellent fit:\n'+
+(n.oizomFit.length?n.oizomFit.map(function(p){ return '* '+p.name+' -- '+p.pitch; }).join('\n'):products)+
+'\n\n'+n.nextSteps+'\n\nI would love to schedule a 30-minute product demo to show you how these solutions address your specific requirements.\n\nPlease let me know your availability for this week or next.\n\nBest regards,\n[Your Name]\nOizom Instruments\n[Phone]\nwww.oizom.com';
+  document.getElementById('email-modal').classList.add('open');
+}
+
+function exportIntelNote(){
+  if(!intelNotes.length){ toast('⚠️','No notes','Save intelligence notes first','urgent'); return; }
+  var content = intelNotes.map(function(n){
+    return '=== '+n.company+' | '+n.dealStrength+' | '+n.city+' ===\n'+
+      'Date: '+n.date+'\nIndustry: '+n.industry+'\n'+
+      'Summary: '+n.companySummary+'\nPain: '+n.painSummary+'\n'+
+      'Sales Angle: '+n.salesAngle+'\nNext Steps: '+n.nextSteps+'\n'+
+      'Internal: '+n.internalRemarks+'\n\n';
+  }).join('');
+  downloadFile('SA_Intel_Notes_'+today()+'.txt','text/plain',content);
+  toast('⬇️','Exported','Intel notes downloaded','good');
+}
+function exportIntelCSV(){
+  if(!intelNotes.length){ toast('⚠️','No notes','Save intelligence notes first','urgent'); return; }
+  var rows = [['Company','City','Date','Industry','Deal Strength','Sales Angle','Next Steps','Competitors','Remarks']];
+  intelNotes.forEach(function(n){
+    rows.push([n.company,n.city,n.date,n.industry,n.dealStrength,n.salesAngle,n.nextSteps,n.competitors||'',n.internalRemarks]);
+  });
+  var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  downloadFile('SA_Intel_'+today()+'.csv','text/csv',csv);
+  toast('⬇️','Exported','Intel CSV downloaded','good');
+}
+
+// ── MARKET INSIGHTS (PHASE 5) ─────────────────────────────────────
+function refreshInsights(){
+  var iqm = document.getElementById('iq-meetings'); if(iqm) iqm.textContent = meetings.length;
+  var iqh = document.getElementById('iq-hot'); if(iqh) iqh.textContent = meetings.filter(function(m){ return m.status==='Hot'; }).length;
+  var pipeline = meetings.reduce(function(s,m){ return s+m.value; },0);
+  var iqp = document.getElementById('iq-pipeline'); if(iqp) iqp.textContent = pipeline>=1000000?(Math.round(pipeline/1000000*10)/10)+'M':pipeline>=1000?Math.round(pipeline/1000)+'K':pipeline+'';
+
+  /* Top city by expected revenue */
+  var cv={Johannesburg:0,Durban:0,'Cape Town':0};
+  meetings.forEach(function(m){ if(cv[m.city]!==undefined) cv[m.city]+=m.expRev; });
+  var topCity = Object.keys(cv).reduce(function(a,b){ return cv[a]>cv[b]?a:b; });
+  var iqtc = document.getElementById('iq-top-city'); if(iqtc) iqtc.textContent = cv[topCity]>0?topCity:'--';
+
+  buildOppByCity(); buildSectorChart(); buildProductInterest(); buildFunnel();
+  buildHWCGauge(); buildPartnerChart(); buildUrgencyMatrix();
+  buildStrategicOutput(); generateActionPlan();
+}
+
+function miniBarChart(data, max, colorFn){
+  if(!data.length) return '<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet -- log meetings</div>';
+  return data.map(function(d){
+    var pct = max>0?Math.round(d.v/max*100):0;
+    return '<div class="mini-bar-row">'+
+      '<div class="mini-bar-label" title="'+d.l+'">'+d.l+'</div>'+
+      '<div class="mini-bar-track"><div class="mini-bar-fill" style="width:'+pct+'%;background:'+colorFn(d.v,max)+';"></div></div>'+
+      '<div class="mini-bar-val">'+d.v+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function buildOppByCity(){
+  var el = document.getElementById('ins-opp-city'); if(!el) return;
+  var cv={Johannesburg:0,Durban:0,'Cape Town':0};
+  meetings.forEach(function(m){ if(cv[m.city]!==undefined) cv[m.city]++; });
+  var data = Object.keys(cv).map(function(k){ return {l:k,v:cv[k]}; });
+  var mx = Math.max.apply(null,data.map(function(d){ return d.v; }).concat([1]));
+  el.innerHTML = miniBarChart(data,mx,function(v,max){ return 'linear-gradient(90deg,#d97706,#fbbf24)'; });
+}
+
+function buildSectorChart(){
+  var el = document.getElementById('ins-sector'); if(!el) return;
+  var sc={};
+  meetings.forEach(function(m){ sc[m.industry]=(sc[m.industry]||0)+1; });
+  if(!Object.keys(sc).length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet</div>'; return; }
+  var data = Object.keys(sc).map(function(k){ return {l:k.replace(/_/g,' '),v:sc[k]}; }).sort(function(a,b){ return b.v-a.v; });
+  var mx = Math.max.apply(null,data.map(function(d){ return d.v; }));
+  el.innerHTML = miniBarChart(data,mx,function(){ return 'linear-gradient(90deg,#c2410c,#ea580c)'; });
+}
+
+function buildProductInterest(){
+  var el = document.getElementById('ins-products'); if(!el) return;
+  /* Count product mentions from intel notes + meeting insights */
+  var pc={};
+  intelNotes.forEach(function(n){ n.oizomFit.forEach(function(p){ pc[p.name]=(pc[p.name]||0)+1; }); });
+  meetings.forEach(function(m){ if(m.insights){ Object.keys(OIZOM_PRODUCTS).forEach(function(k){ if(m.insights.toLowerCase().includes(k.toLowerCase())) pc[OIZOM_PRODUCTS[k].name]=(pc[OIZOM_PRODUCTS[k].name]||0)+1; }); } });
+  if(!Object.keys(pc).length){
+    el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">Log meetings and AI notes to see product interest</div>';
+    return;
+  }
+  var data = Object.keys(pc).map(function(k){ return {l:k,v:pc[k]}; }).sort(function(a,b){ return b.v-a.v; });
+  var mx = Math.max.apply(null,data.map(function(d){ return d.v; }));
+  el.innerHTML = miniBarChart(data,mx,function(){ return 'linear-gradient(90deg,#0d9488,#2dd4bf)'; });
+}
+
+function buildFunnel(){
+  var el = document.getElementById('ins-funnel'); if(!el) return;
+  var total = meetings.length;
+  var hot = meetings.filter(function(m){ return m.status==='Hot'; }).length;
+  var warm = meetings.filter(function(m){ return m.status==='Warm'; }).length;
+  if(!total){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet</div>'; return; }
+  var stages = [
+    {l:'Total Meetings',v:total,pct:100,bg:'linear-gradient(90deg,#d97706,#fbbf24)'},
+    {l:'Engaged (W+H)',v:hot+warm,pct:Math.round((hot+warm)/total*100),bg:'linear-gradient(90deg,#c2410c,#ea580c)'},
+    {l:'Hot',v:hot,pct:Math.round(hot/total*100),bg:'linear-gradient(90deg,#991b1b,#c2410c)'}
+  ];
+  el.innerHTML = stages.map(function(s){
+    return '<div class="funnel-bar">'+
+      '<div class="funnel-label">'+s.l+'</div>'+
+      '<div class="funnel-track"><div class="funnel-fill" style="width:'+s.pct+'%;background:'+s.bg+';">'+s.v+'</div></div>'+
+      '<div class="funnel-pct">'+s.pct+'%</div>'+
+    '</div>';
+  }).join('');
+}
+
+function buildHWCGauge(){
+  var el = document.getElementById('ins-hwc'); if(!el) return;
+  if(!meetings.length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet</div>'; return; }
+  var t=meetings.length;
+  var h=meetings.filter(function(m){ return m.status==='Hot'; }).length;
+  var w=meetings.filter(function(m){ return m.status==='Warm'; }).length;
+  var c=meetings.filter(function(m){ return m.status==='Cold'; }).length;
+  el.innerHTML=
+    '<div class="gauge-item"><div class="gauge-lbl">Hot</div><div class="gauge-bar"><div class="gauge-fill g-hot" style="width:'+Math.round(h/t*100)+'%;">'+h+'</div></div></div>'+
+    '<div class="gauge-item"><div class="gauge-lbl">Warm</div><div class="gauge-bar"><div class="gauge-fill g-warm" style="width:'+Math.round(w/t*100)+'%;">'+w+'</div></div></div>'+
+    '<div class="gauge-item"><div class="gauge-lbl">Cold</div><div class="gauge-bar"><div class="gauge-fill g-cold" style="width:'+Math.round(c/t*100)+'%;">'+c+'</div></div></div>';
+}
+
+function buildPartnerChart(){
+  var el = document.getElementById('ins-partner'); if(!el) return;
+  if(!meetings.length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet</div>'; return; }
+  var data = meetings.slice().sort(function(a,b){ return b.value-a.value; }).slice(0,6).map(function(m){ return {l:m.client.split(' ')[0],v:Math.round(m.expRev/1000)}; });
+  var mx=Math.max.apply(null,data.map(function(d){ return d.v; }).concat([1]));
+  el.innerHTML = miniBarChart(data,mx,function(){ return 'linear-gradient(90deg,#65a30d,#86efac)'; });
+}
+
+function buildUrgencyMatrix(){
+  var el = document.getElementById('ins-urgency'); if(!el) return;
+  if(!meetings.length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">No data yet</div>'; return; }
+  var rows = meetings.filter(function(m){ return m.followup; }).sort(function(a,b){ return a.followup.localeCompare(b.followup); }).slice(0,6);
+  if(!rows.length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px;">Set follow-up dates in meetings to see urgency matrix</div>'; return; }
+  el.innerHTML = rows.map(function(m){
+    var today = new Date(); var fd = new Date(m.followup); var diff=Math.round((fd-today)/86400000);
+    var color = diff<0?'var(--rust2)':diff<=3?'var(--amber2)':'var(--sage)';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 9px;background:var(--surface);border-radius:5px;margin-bottom:4px;">'+
+      '<span style="font-size:11px;">'+m.client+'</span>'+
+      '<span style="font-size:10px;color:'+color+';font-family:var(--font-mono);">'+(diff<0?'OVERDUE '+Math.abs(diff)+'d':diff===0?'TODAY':'in '+diff+'d')+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+function buildStrategicOutput(){
+  var el = document.getElementById('strategic-output'); if(!el) return;
+  if(!meetings.length){ el.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:18px;">Log meetings to generate strategic output</div>'; return; }
+  var hot=meetings.filter(function(m){ return m.status==='Hot'; });
+  var cv={Johannesburg:0,Durban:0,'Cape Town':0};
+  meetings.forEach(function(m){ if(cv[m.city]!==undefined) cv[m.city]+=m.expRev; });
+  var topCity=Object.keys(cv).reduce(function(a,b){ return cv[a]>cv[b]?a:b; });
+  var sc={};
+  meetings.forEach(function(m){ sc[m.industry.replace(/_/g,' ')]=(sc[m.industry.replace(/_/g,' ')]||0)+1; });
+  var topSectors=Object.keys(sc).sort(function(a,b){ return sc[b]-sc[a]; }).slice(0,3);
+  var overdue=meetings.filter(function(m){ return m.followup&&new Date(m.followup)<new Date(); });
+
+  el.innerHTML=[
+    {label:'Top Companies to Prioritize',text:hot.length?hot.map(function(m){ return m.client; }).join(', '):'No hot deals logged yet'},
+    {label:'Top Sectors for Oizom in South Africa',text:topSectors.length?topSectors.join(', '):'Log more meetings with industry data'},
+    {label:'City with Strongest Potential',text:cv[topCity]>0?topCity+' ('+fmt(cv[topCity])+' expected revenue)':'Insufficient data -- log meetings'},
+    {label:'Companies Needing Immediate Follow-up',text:overdue.length?overdue.map(function(m){ return m.client; }).join(', '):'No overdue follow-ups'},
+    {label:'Where Oizom Should Focus',text:topSectors.length&&hot.length?'Focus on '+topSectors[0]+' sector in '+topCity+'. '+hot.length+' hot deal(s) need proposal within 48hrs.':'Complete meeting data to generate focus recommendation'}
+  ].map(function(b){
+    return '<div class="ai-result-block"><div class="ai-result-label">'+b.label+'</div><div class="ai-result-text" contenteditable="true">'+b.text+'</div></div>';
+  }).join('');
+}
+
+function generateActionPlan(){
+  var el = document.getElementById('action-plan-wrap'); if(!el) return;
+  var hot=meetings.filter(function(m){ return m.status==='Hot'; });
+  var warm=meetings.filter(function(m){ return m.status==='Warm'; });
+  var plan=[
+    {week:'Week 1',title:'Immediate Follow-up (Days 1-7)',actions:['Send recap emails to all '+meetings.length+' contacts','Submit proposals to '+hot.length+' hot deal accounts','Schedule demo calls with hot leads','Upload all business cards to CRM']},
+    {week:'Week 2',title:'Proposals and Demos (Days 8-14)',actions:['Conduct Oizom product demo calls','Send warm deal follow-up packages','Respond to any quote requests','Coordinate with Oizom India team on pricing']},
+    {week:'Week 3',title:'Warm Deal Conversion (Days 15-21)',actions:['Follow up with '+warm.length+' warm accounts','Send case studies relevant to each sector','Address any technical questions or objections','Set up pilot project terms where applicable']},
+    {week:'Week 4',title:'Pipeline Review (Days 22-30)',actions:['Full pipeline review call with management','Close or advance all hot deals','Re-qualify cold deals -- archive or nurture','Plan next South Africa visit if needed']}
+  ];
+  el.innerHTML = plan.map(function(w){
+    return '<div style="margin-bottom:12px;padding:12px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'+
+        '<span style="font-size:10px;color:var(--amber2);font-weight:700;font-family:var(--font-mono);">'+w.week+'</span>'+
+        '<span style="font-size:12px;font-weight:700;color:var(--warm-white);font-family:var(--font-head);">'+w.title+'</span>'+
+      '</div>'+
+      w.actions.map(function(a){ return '<div style="font-size:10px;color:var(--text2);padding:2px 0;">&#x2192; '+a+'</div>'; }).join('')+
+    '</div>';
+  }).join('');
+}
+
+// ── EXPORTS ───────────────────────────────────────────────────────
+function exportCSV(){
+  if(!meetings.length){ toast('⚠️','No data','Log meetings first','urgent'); return; }
+  var h=['Client','Type','Industry','City','Date','Time','Location','Contact','Phone','Email','Status','Value','Prob%','Exp Revenue','Priority','Follow-up','Insights','Next Action'];
+  var rows=meetings.map(function(m){ return [m.client,m.type,m.industry,m.city,m.date,m.time||'',m.location||'',m.contact||'',m.phone||'',m.email||'',m.status,m.value,m.prob+'%',Math.round(m.expRev),m.priority||'',m.followup||'',m.insights||'',m.action||'']; });
+  var csv=[h].concat(rows).map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+  downloadFile('SA_Meetings_'+today()+'.csv','text/csv',csv);
+  toast('📊','CSV Exported','Meetings downloaded -- open in Excel','good');
+}
+
+function exportFullReport(){
+  var lines=[
+    '== SA TRIP HQ -- FULL TRIP REPORT ==',
+    'Generated: '+new Date().toLocaleString(),
+    'Trip: 26 April - 15 May 2025 | JHB -> DUR -> CPT -> JHB',
+    '',
+    '== PIPELINE SUMMARY ==',
+    'Total Meetings: '+meetings.length,
+    'Hot Deals: '+meetings.filter(function(m){ return m.status==='Hot'; }).length,
+    'Total Pipeline: '+fmt(meetings.reduce(function(s,m){ return s+m.value; },0)),
+    'Expected Revenue: '+fmt(meetings.reduce(function(s,m){ return s+m.expRev; },0)),
+    '',
+    '== MEETINGS ==',
+    meetings.map(function(m,i){ return (i+1)+'. '+m.client+' ('+m.city+', '+m.date+') -- '+m.status+' -- '+fmt(m.value)+'\n   Contact: '+( m.contact||'N/A')+' | '+( m.email||'N/A')+'\n   Next: '+( m.action||'N/A'); }).join('\n\n'),
+    '',
+    '== INTELLIGENCE NOTES ==',
+    intelNotes.map(function(n){ return n.company+' ('+n.dealStrength+'): '+n.salesAngle+'\nNext: '+n.nextSteps; }).join('\n\n'),
+    '',
+    '== NOTES ==',
+    Object.keys(notes).filter(function(k){ return notes[k].trim(); }).map(function(k){ return '['+k.toUpperCase()+']\n'+notes[k]; }).join('\n\n')
+  ];
+  downloadFile('SA_Trip_Full_Report_'+today()+'.txt','text/plain',lines.join('\n'));
+  toast('📄','Report Exported','Full trip summary downloaded','good');
+}
+
+function exportInsightReport(){
+  var cv={Johannesburg:0,Durban:0,'Cape Town':0};
+  meetings.forEach(function(m){ if(cv[m.city]!==undefined) cv[m.city]+=m.expRev; });
+  var lines=[
+    '== OIZOM SA MARKET INTELLIGENCE REPORT ==',
+    'Generated: '+new Date().toLocaleString(),
+    '',
+    '== CITY REVENUE BREAKDOWN ==',
+    Object.keys(cv).map(function(k){ return k+': '+fmt(cv[k]); }).join('\n'),
+    '',
+    '== HOT DEALS ==',
+    meetings.filter(function(m){ return m.status==='Hot'; }).map(function(m){ return '- '+m.client+' ('+m.city+'): '+fmt(m.value)+' | Next: '+( m.action||'N/A'); }).join('\n'),
+    '',
+    '== OIZOM PRODUCT INTEREST ==',
+    (function(){ var pc={}; intelNotes.forEach(function(n){ n.oizomFit.forEach(function(p){ pc[p.name]=(pc[p.name]||0)+1; }); }); return Object.keys(pc).sort(function(a,b){ return pc[b]-pc[a]; }).map(function(k){ return k+': '+pc[k]+' mentions'; }).join('\n'); })()
+  ];
+  downloadFile('Oizom_SA_Market_Report_'+today()+'.txt','text/plain',lines.join('\n'));
+  toast('📊','Report Exported','Market intelligence report downloaded','good');
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────
+function buildCalendar(){
+  buildMonth('cal-apr',2025,3);
+  buildMonth('cal-may',2025,4);
+}
+function buildMonth(id,y,m){
+  var el=document.getElementById(id); if(!el) return;
+  var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var cityDot={JHB:'#fcd34d',DUR:'#fdba74',CPT:'#5eead4'};
+  var cityLbl={JHB:'JHB',DUR:'DUR',CPT:'CPT'};
+  var h=days.map(function(d){ return '<div class="cal-head">'+d+'</div>'; }).join('');
+  var first=new Date(y,m,1).getDay();
+  var dim=new Date(y,m+1,0).getDate();
+  for(var i=0;i<first;i++) h+='<div class="cal-day empty"></div>';
+  for(var d=1;d<=dim;d++){
+    var k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var info=TRIP_MAP[k];
+    var cls='cal-day';
+    var dot='',lbl='';
+    if(info){
+      if(info.t==='travel') cls+=' travel-day';
+      else if(info.t==='meeting') cls+=' has-meeting';
+      dot='<div class="cal-dot" style="background:'+( cityDot[info.city]||'#9c7d5a')+'"></div>';
+      lbl='<div class="cal-lbl" style="color:'+( cityDot[info.city]||'#9c7d5a')+'">'+( cityLbl[info.city]||'')+'</div>';
+    }
+    h+='<div class="'+cls+'"><div class="cal-num">'+d+'</div>'+dot+lbl+'</div>';
+  }
+  el.innerHTML=h;
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────
+function buildNotifList(){
+  var el=document.getElementById('notif-list'); if(!el) return;
+  el.innerHTML=NOTIFS.map(function(n){
+    return '<div class="notif-item'+(n.urgent?' urgent':'')+'">'+
+      '<div class="notif-icon">'+n.icon+'</div>'+
+      '<div class="notif-body"><div class="notif-title">'+n.title+'</div><div class="notif-sub">'+n.sub+'</div></div>'+
+      '<div class="notif-time">'+n.time+'</div>'+
+    '</div>';
+  }).join('');
+}
+function cycleBell(){
+  var n=bellNotifs[bellIdx%bellNotifs.length];
+  toast(n.icon,n.title,n.sub,n.urgent?'urgent':'');
+  bellIdx++;
+  var cnt=document.getElementById('bell-count');
+  if(cnt) cnt.textContent=Math.max(0,bellNotifs.length-bellIdx);
+}
+async function requestNotifPerm(){
+  if(!('Notification' in window)){ toast('❌','Not Supported','Browser notifications unavailable','urgent'); return; }
+  var p=await Notification.requestPermission();
+  var el=document.getElementById('notif-status');
+  if(p==='granted'){
+    if(el) el.textContent='Push notifications enabled!';
+    new Notification('SA Trip HQ',{body:'Morning briefings and alerts are now active.'});
+  } else {
+    if(el) el.textContent='Notifications blocked. Using in-app toasts.';
+  }
+}
+
+// ── NOTES ─────────────────────────────────────────────────────────
+function switchNoteTag(el,tag){
+  document.querySelectorAll('.note-tag').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  saveNoteQuiet();
+  activeNoteTag=tag;
+  document.getElementById('notes-area').value=notes[tag]||'';
+}
+function saveNoteQuiet(){ notes[activeNoteTag]=document.getElementById('notes-area').value; }
+function saveNote(){ saveNoteQuiet(); saveToStorage(); toast('💾','Saved','Notes saved','good'); }
+function clearNote(){ notes[activeNoteTag]=''; document.getElementById('notes-area').value=''; saveToStorage(); }
+
+// ── CONNECTORS ────────────────────────────────────────────────────
+/* DEVELOPER NOTE: The following connector functions simulate UI state.
+   Real implementation requires:
+   1. Google Cloud Project with OAuth2 credentials
+   2. API scopes: gmail.compose, calendar.events, drive.file
+   3. gapi.load('client:auth2') initialization
+   4. Backend token exchange for security
+   All buttons open the relevant Google service for manual use now. */
+
+function googleSignIn(){
+  /* Simulate sign-in UI -- real: gapi.auth2.getAuthInstance().signIn() */
+  toast('🔵','Google Sign-In','In production this uses Google OAuth2. Opening Google account...','');
+  setTimeout(function(){
+    var status=document.getElementById('gaccount-status');
+    if(status){ status.className='conn-status cs-connected'; status.innerHTML='<div class="cs-dot" style="background:var(--sage);"></div>Connected (Demo)'; }
+    document.getElementById('google-user-info').style.display='block';
+    document.getElementById('google-user-name').textContent='[Your Google Name]';
+    document.getElementById('google-user-email').textContent='[your@gmail.com] -- OAuth2 required for real account';
+    document.getElementById('google-login-btn').textContent='Connected -- Click to Switch Account';
+    toast('✅','Connected','Google account connected (demo mode)','good');
+  },1500);
+}
+function connectCalendar(){
+  toast('📅','Google Calendar','OAuth2 required. Opening Google Calendar...','');
+  setTimeout(function(){ window.open('https://calendar.google.com','_blank'); },600);
+  setTimeout(function(){
+    var s=document.getElementById('gcal-status');
+    if(s){ s.className='conn-status cs-connected'; s.innerHTML='<div class="cs-dot" style="background:var(--sage);"></div>Connected (UI)'; }
+    toast('✅','Calendar','Connected in demo mode. OAuth2 needed for real sync.','good');
+  },2000);
+}
+function createCalendarEvents(){
+  if(!meetings.length){ toast('⚠️','No Meetings','Log meetings to push to calendar','urgent'); return; }
+  toast('📅','Push Meetings','In production: POST to Google Calendar API v3 for '+meetings.length+' events','');
+}
+function addFlightReminders(){
+  toast('✈️','Flight Reminders','In production: creates calendar events 3hrs before each flight via Calendar API','');
+}
+function connectGmail(){
+  toast('📧','Gmail','OAuth2 required. Opening Gmail...','');
+  setTimeout(function(){ window.open('https://mail.google.com','_blank'); },600);
+  setTimeout(function(){
+    var s=document.getElementById('gmail-status');
+    if(s){ s.className='conn-status cs-connected'; s.innerHTML='<div class="cs-dot" style="background:var(--sage);"></div>Connected (UI)'; }
+    toast('✅','Gmail','Connected in demo mode.','good');
+  },2000);
+}
+function connectDocs(){
+  toast('📝','Google Docs','Opening Drive...','');
+  setTimeout(function(){ window.open('https://drive.google.com','_blank'); },600);
+  setTimeout(function(){
+    var s=document.getElementById('notes-status');
+    if(s){ s.className='conn-status cs-connected'; s.innerHTML='<div class="cs-dot" style="background:var(--sage);"></div>Connected (UI)'; }
+    toast('✅','Docs','Connected in demo mode.','good');
+  },2000);
+}
+function exportNotesToDoc(){
+  var content=Object.keys(notes).filter(function(k){ return notes[k].trim(); }).map(function(k){ return '['+k.toUpperCase()+']\n'+notes[k]; }).join('\n\n');
+  if(!content){ toast('⚠️','No notes','Write notes first','urgent'); return; }
+  downloadFile('SA_Trip_Notes_'+today()+'.txt','text/plain',content);
+  toast('📝','Notes Exported','In production: would POST to Google Drive API','good');
+}
+
+// ── EMAIL DRAFTS ──────────────────────────────────────────────────
+function draftFollowUp(){
+  var m=meetings.length?meetings[meetings.length-1]:null;
+  document.getElementById('email-modal-title').textContent='Follow-up Email';
+  document.getElementById('em-to').value=m?m.email||'':'';
+  document.getElementById('em-subject').value=m?'Follow-up: '+m.client+' -- Oizom SA Trip':'Follow-up -- Oizom SA Trip';
+  document.getElementById('em-body').value=m?
+'Dear '+(m.contact||m.client)+',\n\nThank you for meeting with us on '+m.date+'. It was a pleasure discussing opportunities with '+m.client+'.\n\n'+(m.action||'As discussed, I will send you our product documentation and proposal.')+'\n\n'+(m.status==='Hot'?'Given the strong mutual interest, I would like to schedule a product demo at the earliest.':'I would love to schedule a follow-up call to explore how Oizom can support your monitoring needs.')+'\n\nBest regards,\n[Your Name]\nOizom Instruments\n[Phone]\nwww.oizom.com':'[Log a meeting first to auto-fill]';
+  document.getElementById('email-modal').classList.add('open');
+}
+function draftMeetingRecap(){
+  var m=meetings.length?meetings[meetings.length-1]:null;
+  document.getElementById('email-modal-title').textContent='Meeting Recap';
+  document.getElementById('em-to').value=m?m.email||'':'';
+  document.getElementById('em-subject').value=m?'Meeting Recap: '+m.client+' ('+m.date+')':'Meeting Recap';
+  document.getElementById('em-body').value=m?
+'Dear '+(m.contact||m.client)+',\n\nThank you for our meeting on '+m.date+'. Summary:\n\nClient: '+m.client+'\nCity: '+m.city+'\nStatus: '+m.status+' Opportunity\n\nKEY POINTS:\n'+(m.insights||'[Add key points]')+'\n\nNEXT STEPS:\n'+(m.action||'[Add next steps]')+'\n\n'+(m.followup?'FOLLOW-UP DATE: '+m.followup:'')+'\n\nPlease confirm if this accurately captures our discussion.\n\nBest regards,\n[Your Name]\nOizom Instruments':'[Log a meeting first]';
+  document.getElementById('email-modal').classList.add('open');
+}
+function openMailClient(){
+  var to=encodeURIComponent(document.getElementById('em-to').value);
+  var sub=encodeURIComponent(document.getElementById('em-subject').value);
+  var body=encodeURIComponent(document.getElementById('em-body').value);
+  window.open('mailto:'+to+'?subject='+sub+'&body='+body);
+  closeModal('email-modal');
+}
+
+// ── CHECKLIST ─────────────────────────────────────────────────────
+function buildChecklist(){
+  var el=document.getElementById('checklist-wrap'); if(!el) return;
+  el.innerHTML=CHECKS.map(function(c,i){
+    return '<div class="chk-item" id="chk'+i+'" onclick="toggleChk('+i+')">'+
+      '<div class="chk-box" id="chkbox'+i+'"></div>'+
+      '<div class="chk-text">'+c.icon+' '+c.txt+'</div>'+
+    '</div>';
+  }).join('');
+}
+function toggleChk(i){
+  document.getElementById('chk'+i).classList.toggle('done');
+  var b=document.getElementById('chkbox'+i);
+  b.textContent=document.getElementById('chk'+i).classList.contains('done')?'v':'';
+}
+
+// ── MODALS ────────────────────────────────────────────────────────
+function closeModal(id){ var el=document.getElementById(id); if(el) el.classList.remove('open'); }
+document.addEventListener('click',function(e){ if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); });
+
+// ── TOAST ────────────────────────────────────────────────────────
+function toast(icon,title,msg,type){
+  var w=document.getElementById('toasts');
+  if(!w) return;
+  var t=document.createElement('div');
+  t.className='toast'+(type==='urgent'?' t-urgent':type==='good'?' t-good':'');
+  t.innerHTML='<div class="toast-icon">'+icon+'</div><div class="toast-body"><div class="toast-title">'+title+'</div><div class="toast-msg">'+msg+'</div></div><div class="toast-x" onclick="this.parentElement.remove()">x</div>';
+  w.appendChild(t);
+  setTimeout(function(){ if(t.parentElement) t.remove(); },6000);
+}
+</script>
+</body>
+</html>
