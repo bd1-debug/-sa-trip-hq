@@ -895,7 +895,7 @@ body.offline .topbar{top:28px;}
   <div class="card" style="margin-bottom:16px;">
     <div class="card-header"><div class="card-title">👤 Google Account</div><div id="gaccount-status" class="conn-status cs-disconnected"><div class="cs-dot" style="background:var(--muted);"></div>Not Signed In</div></div>
     <div class="card-body">
-      <button class="google-login-btn" onclick="849704093750-bkdakhim70pm8ch3383583vkb6r34ltj.apps.googleusercontent.com()" id="google-login-btn">
+      <button class="google-login-btn" onclick="googleSignIn()" id="google-login-btn">
         <span style="font-size:18px;">🔵</span>
         <span>Sign in with Google</span>
         <span class="api-note">OAuth2 Required</span>
@@ -2146,7 +2146,10 @@ function clearNote(){ notes[activeNoteTag]=''; document.getElementById('notes-ar
    4. Backend token exchange for security
    All buttons open the relevant Google service for manual use now. */
 
-function 849704093750-bkdakhim70pm8ch3383583vkb6r34ltj.apps.googleusercontent.com(){
+/* YOUR GOOGLE CLIENT ID -- set below */
+var GOOGLE_CLIENT_ID = '849704093750-bkdakh.apps.googleusercontent.com';
+
+function googleSignIn(){
   /* Simulate sign-in UI -- real: gapi.auth2.getAuthInstance().signIn() */
   toast('🔵','Google Sign-In','In production this uses Google OAuth2. Opening Google account...','');
   setTimeout(function(){
